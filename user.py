@@ -1,5 +1,9 @@
-#!/usr/bin/env python
 # -*- coding: utf-8 -*-
+"""
+    Flask-Login user management module for my study program.
+
+    by Kei Onimaru <otegami@devel.keys.jp>
+"""
 
 from flask_login import LoginManager
 from flask_login import UserMixin

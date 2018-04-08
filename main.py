@@ -1,5 +1,10 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+"""
+    Study for Flask and Flask-Login.
+
+    by Kei Onimaru <otegami@devel.keys.jp>
+"""
 
 from flask import Flask
 from flask import render_template, request, redirect, session, abort, \
