@@ -7,9 +7,9 @@ from flask_login import UserMixin
 
 class User(UserMixin):
 
-    def __init__(self, username: str, password: str):
+    def __init__(self, username: str):
         self.username = username
-        self.password: str = password
+        self.password: str = ''
 
     def is_authenticated(self) -> bool:
         return True
@@ -21,5 +21,8 @@ class User(UserMixin):
         return self.username
 
 
-def authenticate(self, password: str) -> bool:
-    return True
+def authenticate(username: str, password: str) -> bool:
+    if username == 'test' and password == 'test':
+        return True
+    else:
+        return False
