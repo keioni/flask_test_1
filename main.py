@@ -5,7 +5,8 @@ from flask import Flask
 from flask import render_template, request, redirect, session, abort, \
 make_response, flash, url_for
 from flask_login import LoginManager
-from flask_login import login_required, login_user, logout_user, current_user
+from flask_login import login_required, login_user, logout_user, \
+current_user
 
 import user
 from user import User
