@@ -5,7 +5,7 @@ from flask import Flask
 from flask import render_template, request, redirect, session, abort, \
 make_response, flash, url_for
 from flask_login import LoginManager
-from flask_login import login_required, login_user, logout_user
+from flask_login import login_required, login_user, logout_user, current_user
 
 import user
 from user import User
@@ -24,15 +24,12 @@ def path_route():
 @app.route('/sample')
 @login_required
 def path_sample():
-    if not session.get('sid'):
-        flash('Login required to show this page.', 'warn')
-        return redirect(url_for('user_login'))
-    else:
-        return render_template('sample.html')
+    return render_template('sample.html')
 
 @app.route('/login', methods=['GET', 'POST'])
 def user_login():
-    if session.get('sid'):
+    if current_user.is_authenticated:
+        flash('You (user: {}) are still logged in.'.format(current_user.username))
         return redirect(url_for('path_sample'))
     else:
         if request.method == 'GET':
@@ -50,20 +47,20 @@ def user_login():
 
 @app.route('/logout', methods=['GET', 'POST'])
 def user_logout():
-    user = session.get('sid')
-    if user:
+    if not current_user.is_authenticated:
+        flash('You are not logged in or still logged out.')
+        return redirect(url_for('path_route'))
+    else:
         if request.method == 'GET':
             return render_template('logout_confirm.html')
         elif request.method == 'POST':
-            confirmed = request.form.get('confirm')
-            if confirmed:
-                session.pop('sid', None)
+            if request.form.get('confirm'):
+                logout_user()
                 flash('Logout successfully.', 'info')
                 return redirect(url_for('user_login'))
             else:
+                # unreachable
                 return redirect(url_for('path_sample'))
-    else:
-        return render_template('not_logged_in.html')
 
 @login_manager.user_loader
 def load_user(username):
