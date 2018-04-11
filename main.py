@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """
-    Study for Flask and Flask-Login.
+    A Study for Flask and Flask-Login.
 
     by Kei Onimaru <otegami@devel.keys.jp>
 """
