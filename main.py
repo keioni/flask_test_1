@@ -53,7 +53,12 @@ def user_login():
                 if user.authenticate(username, password):
                     u = User(username)
                     login_user(u)
-                    return redirect(request.args.get("next"))
+                    r = request.args.get('next')
+                    if r:
+                        return redirect(r)
+                    else:
+                        flash('Login successfully.', 'info')
+                        return redirect(url_for('path_route'))
                 else:
                     flash('Invalid user name or password.', 'error')
                     return redirect(url_for('user_login'))
