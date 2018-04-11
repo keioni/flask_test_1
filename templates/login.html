@@ -8,9 +8,9 @@
     </div>
 {% endif %}
 {% endwith %}
-    <form name="Login" method="POST">
-        <input type="text" name="username" />
-        <input type="password" name="password" />
-        <input type="submit" value="Login" />
+    <form method="POST">
+        {{ form.username }}<br />
+        {{ form.password }}<br />
+        {{ form.submit }}
     </form>
 </body></html>

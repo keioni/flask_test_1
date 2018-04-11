@@ -12,9 +12,13 @@ make_response, flash, url_for
 from flask_login import LoginManager
 from flask_login import login_required, login_user, logout_user, \
 current_user
+from flask_wtf import FlaskForm
+from wtforms import StringField, PasswordField, SubmitField
+from wtforms.validators import DataRequired
 
 import user
 from user import User
+from myform import LoginForm
 
 
 app = Flask(__name__)
@@ -39,17 +43,22 @@ def user_login():
         flash('You (user: {}) are still logged in.'.format(current_user.username))
         return redirect(url_for('path_sample'))
     else:
+        form = LoginForm()
         if request.method == 'GET':
-            return render_template('login.html')
+            return render_template('login.html', form=form)
         elif request.method == 'POST':
-            username = request.form.get('username')
-            password = request.form.get('password')
-            if user.authenticate(username, password):
-                u = User(username)
-                login_user(u)
-                return redirect(request.args.get("next"))
+            if form.validate_on_submit():
+                username = request.form.get('username')
+                password = request.form.get('password')
+                if user.authenticate(username, password):
+                    u = User(username)
+                    login_user(u)
+                    return redirect(request.args.get("next"))
+                else:
+                    flash('Invalid user name or password.', 'error')
+                    return redirect(url_for('user_login'))
             else:
-                flash('Invalid user name or password.', 'error')
+                flash('Invalid submitting.', 'error')
                 return redirect(url_for('user_login'))
 
 @app.route('/logout', methods=['GET', 'POST'])
