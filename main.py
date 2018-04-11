@@ -18,7 +18,7 @@ from wtforms.validators import DataRequired
 
 import user
 from user import User
-from myform import LoginForm
+from myform import LoginForm, LogoutConfirmForm
 
 
 app = Flask(__name__)
@@ -51,8 +51,7 @@ def user_login():
                 username = request.form.get('username')
                 password = request.form.get('password')
                 if user.authenticate(username, password):
-                    u = User(username)
-                    login_user(u)
+                    login_user(User(username))
                     r = request.args.get('next')
                     if r:
                         return redirect(r)
@@ -62,9 +61,8 @@ def user_login():
                 else:
                     flash('Invalid user name or password.', 'error')
                     return redirect(url_for('user_login'))
-            else:
-                flash('Invalid submitting.', 'error')
-                return redirect(url_for('user_login'))
+        flash('Invalid operation.', 'error')
+        return redirect(url_for('user_login'))
 
 @app.route('/logout', methods=['GET', 'POST'])
 def user_logout():
@@ -72,16 +70,17 @@ def user_logout():
         flash('You are not logged in or still logged out.')
         return redirect(url_for('path_route'))
     else:
+        form = LogoutConfirmForm()
         if request.method == 'GET':
-            return render_template('logout_confirm.html')
+            return render_template('logout_confirm.html', form=form)
         elif request.method == 'POST':
-            if request.form.get('confirm'):
-                logout_user()
-                flash('Logout successfully.', 'info')
-                return redirect(url_for('user_login'))
-            else:
-                # unreachable
-                return redirect(url_for('path_sample'))
+            if form.validate_on_submit():
+                if request.form.get('confirm'):
+                    logout_user()
+                    flash('Logged out.', 'info')
+                    return redirect(url_for('user_login'))
+        flash('Invalid operation.', 'error')
+        return redirect(url_for('user_login'))
 
 @login_manager.user_loader
 def load_user(username):
