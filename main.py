@@ -16,6 +16,7 @@ current_user
 import user
 from user import User
 
+
 app = Flask(__name__)
 app.config.from_envvar('FLASK_SETTINGS', silent=True)
 
