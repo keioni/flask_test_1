@@ -20,6 +20,5 @@ elif args[1] == 'a':
         'username': args[3],
         'hashed_password': args[4],
     }
-    print(user)
     db = UserDatabase()
     db.add_user(user)
