@@ -13,9 +13,8 @@ from flask_login import LoginManager
 from flask_login import login_required, login_user, logout_user, \
 current_user
 
-import user
-from user import User
-from myform import LoginForm, LogoutConfirmForm
+from mogmog.userlist import LoginUser, UserList
+from mogmog.views import LoginForm, LogoutConfirmForm
 
 
 app = Flask(__name__)
@@ -24,6 +23,9 @@ app.config.from_envvar('FLASK_SETTINGS', silent=True)
 login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = 'user_login'
+
+ul = UserList()
+
 
 @app.route('/')
 def path_route():
@@ -47,8 +49,8 @@ def user_login():
             if form.validate_on_submit():
                 username = request.form.get('username')
                 password = request.form.get('password')
-                if user.authenticate(username, password):
-                    login_user(User(username))
+                if ul.authenticate(username, password):
+                    login_user(LoginUser(username))
                     flash('Login successfully.', 'info')
                     return redirect(request.args.get('next') or url_for('path_route'))
                 else:
@@ -77,4 +79,4 @@ def user_logout():
 
 @login_manager.user_loader
 def load_user(username):
-    return User(username)
+    return LoginUser(username)
