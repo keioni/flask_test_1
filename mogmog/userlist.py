@@ -13,6 +13,7 @@ from sqlalchemy import Column, MetaData, Table
 from sqlalchemy import Integer, String
 from sqlalchemy.sql import select
 
+
 class LoginUser(UserMixin):
 
     def __init__(self, username: str):
@@ -23,7 +24,7 @@ class LoginUser(UserMixin):
 
 
 class UserList():
-    db_userlist = 'sqlite:///mogmog/userlist.sqlite3'
+    db_userlist = 'sqlite:///userlist.sqlite3'
     meta = MetaData()
     userlist = Table('userlist', meta,
         Column('idx', Integer),
@@ -43,7 +44,7 @@ class UserList():
 
     def query_userdata(self, username: str) -> tuple:
         t = self.userlist.c
-        s = select([t.name, t.password]).where(t.username == username)
+        s = select([t.username, t.password]).where(t.username == username)
         for row in self.conn.execute(s):
             return (row.username, row.hashed_password)
 
