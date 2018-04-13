@@ -11,7 +11,6 @@
             "program": "${workspaceFolder}/mogmog/database_util.py",
             "args": [
                 "a",
-                "6",
                 "keys6",
                 "sample6",
             ]
@@ -67,10 +66,11 @@
             "request": "launch",
             "module": "flask",
             "env": {
+                "BLAKE2B_SALT": "oajokkN6AkwZB4wA0XpFtzlJpYYTVB7a9JkjV56PMAs=",
                 "FLASK_APP": "${workspaceFolder}/main.py",
                 "FLASK_SETTINGS": "${workspaceFolder}/flask_settings.cfg"
             },
-            "console": "none",
+            "console": "integratedTerminal",
             "args": [
                 "run",
                 "--no-debugger",

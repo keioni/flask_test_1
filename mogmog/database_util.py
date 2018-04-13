@@ -2,23 +2,26 @@
 # -*- coding: utf-8 -*-
 
 import sys
+import os
+from hashlib import sha256
+from base64 import b64decode, b64encode
 from sqlalchemy import create_engine
 
 from userlist import UserList
 
-
 args = sys.argv
-engine = create_engine(UserList.db_userlist)
+db = UserList('sqlite:///userlist.sqlite3')
 
 if args[1] == 'c':
-    UserList.userlist.create(engine)
+    db.userlist.create(db.engine)
 elif args[1] == 'd':
-    UserList.userlist.drop(engine)
+    db.userlist.drop(db.engine)
 elif args[1] == 'a':
     user = {
-        'idx': int(args[2]),
-        'username': args[3],
-        'hashed_password': args[4],
+        'username': args[2],
+        'hashed_password': args[3],
     }
-    db = UserList()
     db.add_user(user)
+    print('user:{} added.'.format(user['username']))
+elif args[1] == 'key':
+    print(b64encode(sha256(os.urandom(24)).digest()).decode('utf-8'))

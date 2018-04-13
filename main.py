@@ -24,8 +24,7 @@ login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = 'user_login'
 
-ul = UserList()
-
+user_list = UserList('sqlite:///userlist.sqlite3')
 
 @app.route('/')
 def path_route():
@@ -49,7 +48,8 @@ def user_login():
             if form.validate_on_submit():
                 username = request.form.get('username')
                 password = request.form.get('password')
-                if ul.authenticate(username, password):
+                if user_list.authenticate_user(username, password):
+                # if username == password:
                     login_user(LoginUser(username))
                     flash('Login successfully.', 'info')
                     return redirect(request.args.get('next') or url_for('path_route'))

@@ -13,6 +13,11 @@ from sqlalchemy import Column, MetaData, Table
 from sqlalchemy import Integer, String
 from sqlalchemy.sql import select
 
+import os
+from hashlib import blake2b # pylint: disable=E0611
+from hmac import compare_digest
+from base64 import b64decode, b64encode
+
 
 class LoginUser(UserMixin):
 
@@ -24,35 +29,46 @@ class LoginUser(UserMixin):
 
 
 class UserList():
-    db_userlist = 'sqlite:///userlist.sqlite3'
-    meta = MetaData()
-    userlist = Table('userlist', meta,
-        Column('idx', Integer),
-        Column('username', String),
-        Column('hashed_password', String),
-    )
 
-    def __init__(self):
-        self.engine = create_engine(UserList.db_userlist)
-        self.conn = self.engine.connect()
+    def __init__(self, db_uri: str):
+        self.engine = create_engine(db_uri)
+        self.meta = MetaData()
+        self.userlist = Table('userlist', self.meta,
+            Column('id', Integer, primary_key=True),
+            Column('username', String),
+            Column('hashed_password', String),
+        )
+        self.salt = os.environ.get('BLAKE2B_SALT')
+ 
+    def hash_password(self, password: str) -> str:
+        h = blake2b(key=self.salt, digest_size=32)
+        h.update(password.encode('utf-8'))
+        return b64encode(h.digest()).decode()
 
-    def authenticate(self, username: str, password: str) -> bool:
-        if username == 'test' and password == 'test':
-            return True
+    def authenticate_user(self, username: str, password: str) -> bool:
+        db_username, db_hashed_password = self.query_userdata(username)
+        if db_username:
+            return compare_digest(
+                self.hash_password(password),
+                db_hashed_password
+            )
         else:
             return False
 
     def query_userdata(self, username: str) -> tuple:
         t = self.userlist.c
-        s = select([t.username, t.password]).where(t.username == username)
-        for row in self.conn.execute(s):
+        result = self.userlist.select([t.username, t.password]).where(t.username == username)
+        for row in result:
+            result.close()
             return (row.username, row.hashed_password)
+        result.close()
+        return ()
 
     def add_user(self, user: dict):
         ins = self.userlist.insert().values( # pylint: disable=E1120
-            idx=user['idx'],
             username=user['username'],
             hashed_password=user['hashed_password'],
         )
-        result = self.conn.execute(ins)
+        conn = self.engine.connect()
+        result = conn.execute(ins)
         result.close()
