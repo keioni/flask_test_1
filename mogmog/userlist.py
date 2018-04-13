@@ -10,7 +10,7 @@ from flask_login import UserMixin
 
 from sqlalchemy import create_engine
 from sqlalchemy import Column, MetaData, Table
-from sqlalchemy import Integer, String
+from sqlalchemy import Integer, String, DATETIME, BOOLEAN
 from sqlalchemy.sql import select
 
 import os
@@ -34,6 +34,7 @@ class UserList():
         Column('id', Integer, primary_key=True),
         Column('username', String),
         Column('hashed_password', String),
+        Column('registered_date', DATETIME),
     )
 
     def __init__(self, db_uri: str):
@@ -45,7 +46,7 @@ class UserList():
         h.update(password.encode('utf-8'))
         return b64encode(h.digest()).decode()
 
-    def authenticate_user(self, username: str, password: str) -> bool:
+    def auth_user(self, username: str, password: str) -> bool:
         db_username, db_hashed_password = self.query_userdata(username)
         if db_username:
             return compare_digest(
@@ -74,3 +75,19 @@ class UserList():
         conn = self.engine.connect()
         result = conn.execute(ins)
         result.close()
+
+    def delete_user(self, username: str):
+        db_username, db_password = self.query_userdata(username)
+        if db_username:
+            # XXX: implement
+            pass
+
+class UserMailAddressList():
+    meta = MetaData()
+    userlist = Table('user_mailaddr_list', meta,
+        Column('id', Integer, primary_key=True),
+        Column('masked_mailaddr', String),
+        Column('hashed_mailaddr', String),
+        Column('reset_code', String),
+        Column('reseting_expire_date', DATETIME),
+    )
