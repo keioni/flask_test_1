@@ -38,8 +38,7 @@ class UserList():
 
     def __init__(self, db_uri: str):
         self.engine = create_engine(db_uri)
-        #self.salt = os.environ.get('BLAKE2B_SALT').encode('utf-8')
-        self.salt = "oajokkN6AkwZB4wA0XpFtzlJpYYTVB7a9JkjV56PMAs=".encode('utf-8')
+        self.salt = os.environ.get('BLAKE2B_SALT').encode('utf-8')
 
     def hash_password(self, password: str) -> str:
         h = blake2b(key=self.salt, digest_size=32)
@@ -61,7 +60,6 @@ class UserList():
         conn = self.engine.connect()
         result = conn.execute(query)
         for row in result:
-            print(row)
             result.close()
             return (row.username, row.hashed_password)
         result.close()
