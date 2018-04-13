@@ -56,13 +56,15 @@ class UserList():
             return False
 
     def query_userdata(self, username: str) -> tuple:
-        t = self.userlist.c
-        result = self.userlist.select([t.username, t.password]).where(t.username == username)
+        query = self.userlist.select().where(self.userlist.c.username == ':username')
+        print(query)
+        conn = self.engine.connect()
+        result = conn.execute(query)
         for row in result:
             result.close()
             return (row.username, row.hashed_password)
         result.close()
-        return ()
+        return (None, None)
 
     def add_user(self, username: str, password: str):
         hashed_password = self.hash_password(password)

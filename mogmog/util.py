@@ -20,5 +20,15 @@ elif args[1] == 'd':
 elif args[1] == 'a':
     db.add_user(args[2], args[3])
     print('user:{} added.'.format(args[2]))
+elif args[1] == 'q':
+    # db.query_userdata(args[2])
+    query = db.userlist.select().where(db.userlist.c.username == ':username')
+    print(query)
+    conn = db.engine.connect()
+    result = conn.execute(query)
+    for row in result:
+        print(row)
+    else:
+        print("Oh...")
 elif args[1] == 'key':
     print(b64encode(sha256(os.urandom(24)).digest()).decode('utf-8'))
