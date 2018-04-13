@@ -39,7 +39,7 @@ class UserList():
             Column('hashed_password', String),
         )
         self.salt = os.environ.get('BLAKE2B_SALT').encode('utf-8')
- 
+
     def hash_password(self, password: str) -> str:
         h = blake2b(key=self.salt, digest_size=32)
         h.update(password.encode('utf-8'))
@@ -56,11 +56,11 @@ class UserList():
             return False
 
     def query_userdata(self, username: str) -> tuple:
-        query = self.userlist.select().where(self.userlist.c.username == ':username')
-        print(query)
+        query = self.userlist.select().where(self.userlist.c.username == username)
         conn = self.engine.connect()
         result = conn.execute(query)
         for row in result:
+            print(row)
             result.close()
             return (row.username, row.hashed_password)
         result.close()

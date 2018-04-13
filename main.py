@@ -6,6 +6,7 @@
     by Kei Onimaru <otegami@devel.keys.jp>
 """
 
+import os
 from flask import Flask
 from flask import render_template, request, redirect, \
 flash, url_for
@@ -49,7 +50,6 @@ def user_login():
                 username = request.form.get('username')
                 password = request.form.get('password')
                 if user_list.authenticate_user(username, password):
-                # if username == password:
                     login_user(LoginUser(username))
                     flash('Login successfully.', 'info')
                     return redirect(request.args.get('next') or url_for('path_route'))
