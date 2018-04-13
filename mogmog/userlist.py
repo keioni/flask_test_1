@@ -38,7 +38,7 @@ class UserList():
             Column('username', String),
             Column('hashed_password', String),
         )
-        self.salt = os.environ.get('BLAKE2B_SALT')
+        self.salt = os.environ.get('BLAKE2B_SALT').encode('utf-8')
  
     def hash_password(self, password: str) -> str:
         h = blake2b(key=self.salt, digest_size=32)
@@ -64,10 +64,11 @@ class UserList():
         result.close()
         return ()
 
-    def add_user(self, user: dict):
+    def add_user(self, username: str, password: str):
+        hashed_password = self.hash_password(password)
         ins = self.userlist.insert().values( # pylint: disable=E1120
-            username=user['username'],
-            hashed_password=user['hashed_password'],
+            username=username,
+            hashed_password=hashed_password,
         )
         conn = self.engine.connect()
         result = conn.execute(ins)

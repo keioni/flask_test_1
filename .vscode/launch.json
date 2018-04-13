@@ -11,8 +11,8 @@
             "program": "${workspaceFolder}/mogmog/database_util.py",
             "args": [
                 "a",
-                "keys6",
-                "sample6",
+                "keys",
+                "password",
             ]
         },
         {

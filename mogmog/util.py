@@ -10,6 +10,7 @@ from sqlalchemy import create_engine
 from userlist import UserList
 
 args = sys.argv
+os.environ['BLAKE2B_SALT'] = "oajokkN6AkwZB4wA0XpFtzlJpYYTVB7a9JkjV56PMAs="
 db = UserList('sqlite:///userlist.sqlite3')
 
 if args[1] == 'c':
@@ -17,11 +18,7 @@ if args[1] == 'c':
 elif args[1] == 'd':
     db.userlist.drop(db.engine)
 elif args[1] == 'a':
-    user = {
-        'username': args[2],
-        'hashed_password': args[3],
-    }
-    db.add_user(user)
-    print('user:{} added.'.format(user['username']))
+    db.add_user(args[2], args[3])
+    print('user:{} added.'.format(args[2]))
 elif args[1] == 'key':
     print(b64encode(sha256(os.urandom(24)).digest()).decode('utf-8'))
