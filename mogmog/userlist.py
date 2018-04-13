@@ -29,16 +29,17 @@ class LoginUser(UserMixin):
 
 
 class UserList():
+    meta = MetaData()
+    userlist = Table('userlist', meta,
+        Column('id', Integer, primary_key=True),
+        Column('username', String),
+        Column('hashed_password', String),
+    )
 
     def __init__(self, db_uri: str):
         self.engine = create_engine(db_uri)
-        self.meta = MetaData()
-        self.userlist = Table('userlist', self.meta,
-            Column('id', Integer, primary_key=True),
-            Column('username', String),
-            Column('hashed_password', String),
-        )
-        self.salt = os.environ.get('BLAKE2B_SALT').encode('utf-8')
+        #self.salt = os.environ.get('BLAKE2B_SALT').encode('utf-8')
+        self.salt = "oajokkN6AkwZB4wA0XpFtzlJpYYTVB7a9JkjV56PMAs=".encode('utf-8')
 
     def hash_password(self, password: str) -> str:
         h = blake2b(key=self.salt, digest_size=32)
