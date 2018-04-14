@@ -34,7 +34,7 @@ class UserList():
         Column('id', Integer, primary_key=True),
         Column('username', String),
         Column('hashed_password', String),
-        Column('registered_date', DATETIME),
+        Column('register_date', DATETIME),
     )
 
     def __init__(self, db_uri: str):
@@ -46,41 +46,76 @@ class UserList():
         h.update(password.encode('utf-8'))
         return b64encode(h.digest()).decode()
 
+    def query_userdata(self, username: str) -> tuple:
+        ret: tuple
+        tbl = self.userlist
+        query = tbl.select().where(tbl.c.username == username)
+        conn = self.engine.connect()
+        result = conn.execute(query)
+        for row in result:
+            ret = (row.username, row.hashed_password)
+        else:
+            ret = (None, None)
+        conn.close()
+        return ret
+
+    def execute_statement(self, statement):
+        ret: bool
+        conn = self.engine.connect()
+        result = conn.execute(statement)
+        if result.rowcount:
+            ret = True
+        else:
+            ret = False
+        conn.close()
+        return ret
+
     def auth_user(self, username: str, password: str) -> bool:
+        ret: bool
         db_username, db_hashed_password = self.query_userdata(username)
         if db_username:
-            return compare_digest(
+            ret = compare_digest(
                 self.hash_password(password),
                 db_hashed_password
             )
         else:
-            return False
+            ret = False
+        return ret
 
-    def query_userdata(self, username: str) -> tuple:
-        query = self.userlist.select().where(self.userlist.c.username == username)
-        conn = self.engine.connect()
-        result = conn.execute(query)
-        for row in result:
-            result.close()
-            return (row.username, row.hashed_password)
-        result.close()
-        return (None, None)
-
-    def add_user(self, username: str, password: str):
+    def add_user(self, username: str, password: str) -> bool:
+        ret: bool
         hashed_password = self.hash_password(password)
-        ins = self.userlist.insert().values( # pylint: disable=E1120
+        stmt = self.userlist.insert().values( # pylint: disable=E1120
             username=username,
             hashed_password=hashed_password,
         )
-        conn = self.engine.connect()
-        result = conn.execute(ins)
-        result.close()
+        ret = self.execute_statement(stmt)
+        # conn = self.engine.connect()
+        # result = conn.execute(stmt)
+        # if result.rowcount:
+        #     ret = True
+        # else:
+        #     ret = False
+        # conn.close()
+        return ret
 
-    def delete_user(self, username: str):
-        db_username, db_password = self.query_userdata(username)
+    def delete_user(self, username: str) -> bool:
+        ret: bool
+        tbl = self.userlist
+        db_username, _ = self.query_userdata(username)
         if db_username:
-            # XXX: implement
-            pass
+            stmt = tbl.delete().where(tbl.c.username == username) # pylint: disable=E1120
+            ret = self.execute_statement(stmt)
+            # conn = self.engine.connect()
+            # result = conn.execute(stmt)
+            # if result.rowcount:
+            #     ret = True
+            # else:
+            #     ret = False
+            # conn.close()
+        else:
+            ret = False
+        return ret
 
 class UserMailAddressList():
     meta = MetaData()
@@ -89,5 +124,5 @@ class UserMailAddressList():
         Column('masked_mailaddr', String),
         Column('hashed_mailaddr', String),
         Column('reset_code', String),
-        Column('reseting_expire_date', DATETIME),
+        Column('reseting_date', DATETIME),
     )

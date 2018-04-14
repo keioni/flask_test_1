@@ -20,7 +20,10 @@ elif args[1] == 'd':
 elif args[1] == 'a':
     db.add_user(args[2], args[3])
     print('user:{} added.'.format(args[2]))
+elif args[1] == 'd':
+    db.delte_user(args[2])
+    print('user:{} deleted.'.format(args[2]))
 elif args[1] == 'q':
-    print(db.authenticate_user(args[2], args[3]))
+    print(db.auth_user(args[2], args[3]))
 elif args[1] == 'key':
     print(b64encode(sha256(os.urandom(24)).digest()).decode('utf-8'))
