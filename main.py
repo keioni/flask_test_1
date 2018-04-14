@@ -49,7 +49,7 @@ def user_login():
             if form.validate_on_submit():
                 username = request.form.get('username')
                 password = request.form.get('password')
-                if user_list.authenticate_user(username, password):
+                if user_list.auth_user(username, password):
                     login_user(LoginUser(username))
                     flash('Login successfully.', 'info')
                     return redirect(request.args.get('next') or url_for('path_route'))

@@ -11,7 +11,8 @@ from flask_login import UserMixin
 from sqlalchemy import create_engine
 from sqlalchemy import Column, MetaData, Table
 from sqlalchemy import Integer, String, DATETIME, BOOLEAN
-from sqlalchemy.sql import select
+from sqlalchemy.sql import select, and_
+from sqlalchemy.exc import IntegrityError
 
 import os
 from hashlib import blake2b # pylint: disable=E0611
@@ -32,7 +33,7 @@ class UserList():
     meta = MetaData()
     userlist = Table('userlist', meta,
         Column('id', Integer, primary_key=True),
-        Column('username', String),
+        Column('username', String, unique=True),
         Column('hashed_password', String),
         Column('register_date', DATETIME),
     )
@@ -46,76 +47,43 @@ class UserList():
         h.update(password.encode('utf-8'))
         return b64encode(h.digest()).decode()
 
-    def query_userdata(self, username: str) -> tuple:
-        ret: tuple
-        tbl = self.userlist
-        query = tbl.select().where(tbl.c.username == username)
-        conn = self.engine.connect()
-        result = conn.execute(query)
-        for row in result:
-            ret = (row.username, row.hashed_password)
-        else:
-            ret = (None, None)
-        conn.close()
-        return ret
-
-    def execute_statement(self, statement):
-        ret: bool
-        conn = self.engine.connect()
-        result = conn.execute(statement)
-        if result.rowcount:
-            ret = True
-        else:
-            ret = False
-        conn.close()
-        return ret
-
     def auth_user(self, username: str, password: str) -> bool:
-        ret: bool
-        db_username, db_hashed_password = self.query_userdata(username)
-        if db_username:
-            ret = compare_digest(
-                self.hash_password(password),
-                db_hashed_password
+        hashed_password = self.hash_password(password)
+        stmt = self.userlist.select().where(
+            and_(
+                self.userlist.c.username == username,
+                self.userlist.c.hashed_password == hashed_password
             )
-        else:
-            ret = False
-        return ret
+        )
+        with self.engine.connect() as conn:
+            result = conn.execute(stmt)
+            if result.fetchone():
+                return True
+        return False
 
     def add_user(self, username: str, password: str) -> bool:
-        ret: bool
         hashed_password = self.hash_password(password)
         stmt = self.userlist.insert().values( # pylint: disable=E1120
             username=username,
             hashed_password=hashed_password,
         )
-        ret = self.execute_statement(stmt)
-        # conn = self.engine.connect()
-        # result = conn.execute(stmt)
-        # if result.rowcount:
-        #     ret = True
-        # else:
-        #     ret = False
-        # conn.close()
-        return ret
+        with self.engine.connect() as conn:
+            try:
+                if conn.execute(stmt).rowcount:
+                    return True
+            except IntegrityError:
+                return False
+        return False
 
     def delete_user(self, username: str) -> bool:
-        ret: bool
-        tbl = self.userlist
-        db_username, _ = self.query_userdata(username)
-        if db_username:
-            stmt = tbl.delete().where(tbl.c.username == username) # pylint: disable=E1120
-            ret = self.execute_statement(stmt)
-            # conn = self.engine.connect()
-            # result = conn.execute(stmt)
-            # if result.rowcount:
-            #     ret = True
-            # else:
-            #     ret = False
-            # conn.close()
-        else:
-            ret = False
-        return ret
+        stmt = self.userlist.delete().where( # pylint: disable=E1120
+            self.userlist.c.username == username
+        )
+        with self.engine.connect() as conn:
+            if conn.execute(stmt).rowcount:
+                return True
+        return False
+
 
 class UserMailAddressList():
     meta = MetaData()

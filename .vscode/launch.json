@@ -10,7 +10,7 @@
             "request": "launch",
             "program": "${workspaceFolder}/mogmog/util.py",
             "args": [
-                "q",
+                "query",
                 "keys",
                 "password",
             ]
