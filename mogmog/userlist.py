@@ -10,11 +10,12 @@ from flask_login import UserMixin
 
 from sqlalchemy import create_engine
 from sqlalchemy import Column, MetaData, Table
-from sqlalchemy import Integer, String, DATETIME, BOOLEAN
+from sqlalchemy import Integer, String, DateTime, Boolean
 from sqlalchemy.sql import select, and_
 from sqlalchemy.exc import IntegrityError
 
 import os
+from datetime import datetime
 from hashlib import blake2b # pylint: disable=E0611
 from hmac import compare_digest
 from base64 import b64decode, b64encode
@@ -35,7 +36,7 @@ class UserList():
         Column('id', Integer, primary_key=True),
         Column('username', String, unique=True),
         Column('hashed_password', String),
-        Column('register_date', DATETIME),
+        Column('register_date', DateTime, default=datetime.utcnow),
     )
 
     def __init__(self, db_uri: str):
@@ -92,5 +93,5 @@ class UserMailAddressList():
         Column('masked_mailaddr', String),
         Column('hashed_mailaddr', String),
         Column('reset_code', String),
-        Column('reseting_date', DATETIME),
+        Column('reseting_date', ),
     )
