@@ -93,5 +93,5 @@ class UserMailAddressList():
         Column('masked_mailaddr', String),
         Column('hashed_mailaddr', String),
         Column('reset_code', String),
-        Column('reseting_date', ),
+        Column('reseting_date', DateTime),
     )
