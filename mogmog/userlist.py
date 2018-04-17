@@ -17,7 +17,6 @@ from sqlalchemy.exc import IntegrityError
 import os
 from datetime import datetime
 from hashlib import blake2b # pylint: disable=E0611
-from hmac import compare_digest
 from base64 import b64decode, b64encode
 
 

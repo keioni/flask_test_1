@@ -16,7 +16,6 @@ current_user
 
 from mogmog.userlist import LoginUser, UserList
 from mogmog.views import LoginForm, LogoutConfirmForm
-from orm.database import setup_database, db
 from orm.user import auth_user
 
 
@@ -28,8 +27,6 @@ login_manager.init_app(app)
 login_manager.login_view = 'user_login'
 
 # user_list = UserList('sqlite:///userlist.sqlite3')
-
-setup_database(app)
 
 @app.route('/')
 def path_route():

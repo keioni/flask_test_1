@@ -1,20 +1,21 @@
 # -*- coding: utf-8 -*-
 
+import os
 from datetime import datetime
 
-from flask import Flask
-from flask_sqlalchemy import SQLAlchemy
-# from sqlalchemy import Column, Integer, String, DateTime
-# from sqlalchemy.exc import IntegrityError
+from sqlalchemy import create_engine
+from sqlalchemy import Column, Integer, String, DateTime
+from sqlalchemy.orm import sessionmaker
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.exc import IntegrityError
 
 from orm.security import secure_hashing, mask_mailaddr
 
-db = SQLAlchemy()
+engine = create_engine('sqlite:///userlist.sqlite3', echo=True)
+Base = declarative_base()
+Session = sessionmaker(bind=engine)
 
-def setup_database(app: Flask):
-    db.init_app(app)
-
-class UserList(db.Model):
+class UserList(Base):
     __tablename__ = 'user_list'
 
     id = Column('id', Integer, primary_key=True, autoincrement=True)
@@ -43,7 +44,7 @@ class UserList(db.Model):
         return "<UserList({})".format(repr_args)
 
 
-class UserMailaddr(db.Model):
+class UserMailaddr(Base):
     __tablename__ = 'user_mailaddr'
 
     id = Column('id', Integer, primary_key=True)

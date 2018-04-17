@@ -1,45 +1,40 @@
 # -*- coding: utf-8 -*-
 
-from orm.database import UserList, UserMailaddr, db
+from hmac import compare_digest
+
+from sqlalchemy import and_
+from orm.database import UserList, UserMailaddr, Session
 from orm.security import secure_hashing, mask_mailaddr
 
-def auth_user(username: str, raw_password: str) -> bool:
-    password = secure_hashing(raw_password)
-    return True
-    # stmt = self.userlist.select().where(
-    #     and_(
-    #         self.userlist.c.username == username,
-    #         self.userlist.c.hashed_password == hashed_password
-    #     )
-    # )
-    # with self.engine.connect() as conn:
-    #     result = conn.execute(stmt)
-    #     if result.fetchone():
-    #         return True
-    # return False
 
-def add_user(username: str, raw_password: str, raw_mailaddr: str) -> bool:
-    user = UserList(username, raw_password, raw_mailaddr)
-    db.session. add(user)
-    # stmt = self.userlist.insert().values( # pylint: disable=E1120
-    #     username=username,
-    #     hashed_password=hashed_password,
-    # )
-    # with self.engine.connect() as conn:
-    #     try:
-    #         if conn.execute(stmt).rowcount:
-    #             return True
-    #     except IntegrityError:
-    #         return False
-    # return False
-    return True
+session = Session()
 
-def delete_user(self, username: str) -> bool:
-    # stmt = self.userlist.delete().where( # pylint: disable=E1120
-    #     self.userlist.c.username == username
-    # )
-    # with self.engine.connect() as conn:
-    #     if conn.execute(stmt).rowcount:
-    #         return True
-    # return False
-    return True
+def auth_user(username: str, plain_password: str) -> int:
+    password = secure_hashing(plain_password)
+    return session.query(UserList).filter(
+        and_(
+            UserList.username == username,
+            UserList.password == password
+        )
+    ).count()
+
+def add_user(username: str, plain_password: str, plain_mailaddr: str) -> int:
+    ul = UserList(username, plain_password, plain_mailaddr)
+    count = session.add(ul)
+    session.commit()
+    if count > 0:
+        um = UserMailaddr(username, plain_mailaddr)
+        session.add(um)
+        session.commit()
+    return count
+
+def delete_user(self, username: str) -> int:
+    ul = session.query(UserList).filter_by(username=username).first()
+    password = secure_hashing(ul.password)
+    count = session.delete(ul)
+    session.commit()
+    if count > 0:
+        um = session.query(UserMailaddr).filter_by(password=password).first()
+        session.delete(um)
+        session.commit()
+    return count
