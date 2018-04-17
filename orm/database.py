@@ -4,16 +4,15 @@ from datetime import datetime
 
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy import Column, Integer, String, DateTime
-from sqlalchemy.exc import IntegrityError
+# from sqlalchemy import Column, Integer, String, DateTime
+# from sqlalchemy.exc import IntegrityError
 
-from mogmog.security import secure_hashing, mask_mailaddr
+from orm.security import secure_hashing, mask_mailaddr
 
 db = SQLAlchemy()
 
 def setup_database(app: Flask):
     db.init_app(app)
-    return db
 
 class UserList(db.Model):
     __tablename__ = 'user_list'

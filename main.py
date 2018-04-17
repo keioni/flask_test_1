@@ -16,7 +16,8 @@ current_user
 
 from mogmog.userlist import LoginUser, UserList
 from mogmog.views import LoginForm, LogoutConfirmForm
-from mogmog.database import setup_database
+from orm.database import setup_database, db
+from orm.user import auth_user
 
 
 app = Flask(__name__)
@@ -26,9 +27,9 @@ login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = 'user_login'
 
-user_list = UserList('sqlite:///userlist.sqlite3')
+# user_list = UserList('sqlite:///userlist.sqlite3')
 
-db = setup_database(app)
+setup_database(app)
 
 @app.route('/')
 def path_route():
@@ -52,7 +53,7 @@ def user_login():
             if form.validate_on_submit():
                 username = request.form.get('username')
                 password = request.form.get('password')
-                if user_list.auth_user(username, password):
+                if auth_user(username, password):
                     login_user(LoginUser(username))
                     flash('Login successfully.', 'info')
                     return redirect(request.args.get('next') or url_for('path_route'))
