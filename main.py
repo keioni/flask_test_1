@@ -16,6 +16,7 @@ current_user
 
 from mogmog.userlist import LoginUser, UserList
 from mogmog.views import LoginForm, LogoutConfirmForm
+from mogmog.database import setup_database
 
 
 app = Flask(__name__)
@@ -26,6 +27,8 @@ login_manager.init_app(app)
 login_manager.login_view = 'user_login'
 
 user_list = UserList('sqlite:///userlist.sqlite3')
+
+db = setup_database(app)
 
 @app.route('/')
 def path_route():
