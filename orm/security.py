@@ -1,10 +1,8 @@
 # -*- coding: utf-8 -*-
 
-import os
 import re
 from hashlib import blake2b # pylint: disable=E0611
-from hmac import compare_digest
-from base64 import b64decode, b64encode
+from base64 import b64encode
 
 salt: bytes = b''
 pat_mailaddr = re.compile(r'^([a-zA-Z0-9_\.\-]+)@([a-zA-Z0-9_\.\-]+)$')

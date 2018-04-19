@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 
-from hmac import compare_digest
 
 from sqlalchemy import and_
 from sqlalchemy.exc import IntegrityError
@@ -8,7 +7,7 @@ from sqlalchemy.exc import IntegrityError
 from orm.database import Session
 from orm.database import (UserAuthTable, UserMailaddrTable,
                       UserValidationTable)
-from orm.security import secure_hashing, mask_mailaddr
+from orm.security import secure_hashing
 
 
 session = Session()
@@ -44,8 +43,8 @@ def add(name: str, plain_password: str, mailaddr: str) -> bool:
 def get_validation_code(name: str) -> str:
     user = session.query(UserAuthTable).filter_by(name=name).first()
     if user:
-        id = int(user.id)
-        uv = session.query(UserValidationTable).filter_by(id=id).first()
+        user_id = int(user.id)
+        uv = session.query(UserValidationTable).filter_by(id=user_id).first()
         if uv:
             return uv.validation_code
     return None
@@ -53,10 +52,10 @@ def get_validation_code(name: str) -> str:
 def validate(name: str, mailaddr: str, validation_code: str) -> bool:
     user = session.query(UserAuthTable).filter_by(name=name).first()
     if user:
-        id = int(user.id)
+        user_id = int(user.id)
         hashed_mailaddr = secure_hashing(mailaddr)
         uv = session.query(UserValidationTable).filter(
-            and_(UserValidationTable.id == user.id,
+            and_(UserValidationTable.id == user_id,
                 UserValidationTable.hashed_mailaddr == hashed_mailaddr,
                 UserValidationTable.validation_code == validation_code,
             )
@@ -64,7 +63,7 @@ def validate(name: str, mailaddr: str, validation_code: str) -> bool:
         if uv:
             try:
                 session.delete(uv)
-                user = session.query(UserAuthTable).filter_by(id=id).first()
+                user = session.query(UserAuthTable).filter_by(id=user_id).first()
                 user.status = 'Active'
                 session.commit()
                 return True
@@ -77,12 +76,12 @@ def delete(name: str) -> bool:
     user = session.query(UserAuthTable).filter_by(name=name).first()
     if user:
         try:
-            id = user.id
+            user_id = user.id
             session.delete(user)
-            um = session.query(UserMailaddrTable).filter_by(id=id).first()
+            um = session.query(UserMailaddrTable).filter_by(id=user_id).first()
             if um:
                 session.delete(um)
-            uv = session.query(UserValidationTable).filter_by(id=id).first()
+            uv = session.query(UserValidationTable).filter_by(id=user_id).first()
             if uv:
                 session.delete(uv)
             session.commit()

@@ -51,8 +51,8 @@ class UserMailaddrTable(Base):
     hashed_mailaddr = Column('hashed_mailaddr', String, unique=True)
     masked_mailaddr = Column('masked_mailaddr', String)
 
-    def __init__(self, id: int, mailaddr: str):
-        self.id = id
+    def __init__(self, user_id: int, mailaddr: str):
+        self.id = user_id
         self.hashed_mailaddr = secure_hashing(mailaddr)
         self.masked_mailaddr = mask_mailaddr(mailaddr)
 
@@ -73,8 +73,8 @@ class UserValidationTable(Base):
     validation_code = Column('validation_code', String)
     expire_time = Column('expire_time', Integer)
 
-    def __init__(self, id: int, mailaddr: str):
-        self.id = id
+    def __init__(self, user_id: int, mailaddr: str):
+        self.id = user_id
         self.hashed_mailaddr = secure_hashing(mailaddr)
         alphabet = string.ascii_letters + string.digits
         self.validation_code = ''.join(choice(alphabet) for i in range(8))
