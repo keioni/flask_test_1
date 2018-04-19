@@ -9,10 +9,9 @@ from sqlalchemy import create_engine
 
 from security import salt
 from database import Base
-from database import UserAuthTable, UserMailaddrTable, UserValidationTable
 import user
 
-salt = "oajokkN6AkwZB4wA0XpFtzlJpYYTVB7a9JkjV56PMAs="
+salt = "oajokkN6AkwZB4wA0XpFtzlJpYYTVB7a9JkjV56PMAs=".encode('utf-8')
 args = sys.argv
 
 if args[1] == 'create':
@@ -24,11 +23,21 @@ elif args[1] == 'add':
         print('user:{} added.'.format(args[2]))
     else:
         print('FAILED: add_user({})'.format(args[2]))
-# elif args[1] == 'delete':
-#     if db.delete_user(args[2]):
-#         print('user:{} deleted.'.format(args[2]))
-#     else:
-#         print('FAILED: delete_user({})'.format(args[2]))
+elif args[1] == 'validate':
+    if len(args) > 4:
+        vcode = args[4]
+    else:
+        vcode = user.get_validation_code(args[2])
+        print("user:{}, vcode:{}".format(args[2], vcode))
+    if user.validate(args[2], args[3], vcode):
+        print("user:{} validated.".format(args[2]))
+    else:
+        print('FAILED: validate_user({})'.format(args[2]))
+elif args[1] == 'delete':
+    if user.delete(args[2]):
+        print('user:{} deleted.'.format(args[2]))
+    else:
+        print('FAILED: delete_user({})'.format(args[2]))
 # elif args[1] == 'query':
 #     print(db.auth_user(args[2], args[3]))
 # elif args[1] == 'key':

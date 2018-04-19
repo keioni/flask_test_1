@@ -1,9 +1,7 @@
 # -*- coding: utf-8 -*-
 
-import os
 import string
 import time
-from datetime import datetime
 from random import choice
 
 from sqlalchemy import create_engine
@@ -13,6 +11,7 @@ from sqlalchemy.ext.declarative import declarative_base
 
 from security import secure_hashing, mask_mailaddr
 
+
 engine = create_engine('sqlite:///userlist.sqlite3', echo=True)
 Base = declarative_base(bind=engine)
 Session = sessionmaker(bind=engine)
@@ -21,14 +20,14 @@ class UserAuthTable(Base):
     __tablename__ = 'user_auth'
 
     id = Column('id', Integer, primary_key=True, autoincrement=True)
-    user = Column('user', String, unique=True)
+    name = Column('name', String, unique=True)
     password = Column('password', String)
     status = Column('status', String)
     ctime = Column('ctime', Integer)
     mtime = Column('mtime', Integer)
 
-    def __init__(self, user: str, plain_password: str):
-        self.user = user
+    def __init__(self, name: str, plain_password: str):
+        self.name = name
         self.password = secure_hashing(plain_password)
         self.status = ''
         self.ctime = self.mtime = int(time.time())
@@ -51,8 +50,6 @@ class UserMailaddrTable(Base):
     id = Column('id', Integer, primary_key=True)
     hashed_mailaddr = Column('hashed_mailaddr', String, unique=True)
     masked_mailaddr = Column('masked_mailaddr', String)
-    # reset_code = Column('reset_code', String)
-    # resetting_date = Column('resetting_date', DateTime)
 
     def __init__(self, id: int, mailaddr: str):
         self.id = id
@@ -64,8 +61,6 @@ class UserMailaddrTable(Base):
             "id={}".format((self.id)),
             "hashed_mailaddr='{}'".format(self.hashed_mailaddr),
             "masked_mailaddr='{}'".format(self.masked_mailaddr),
-            # "reset_code='{}'".format(self.reset_code),
-            # "resetting_date='{}'".format(self.resetting_date),
         ])
         return "<UserMailaddrTable({})".format(repr_args)
 
@@ -94,4 +89,3 @@ class UserValidationTable(Base):
         ])
         return "<UserRegisterValidationTable({})".format(repr_args)
 
-#Base.metadata.create_all(engine)

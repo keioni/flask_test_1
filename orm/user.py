@@ -5,9 +5,9 @@ from hmac import compare_digest
 from sqlalchemy import and_
 from sqlalchemy.exc import IntegrityError
 
-from database import Session
-from database import UserAuthTable, UserMailaddrTable, \
-                         UserValidationTable
+from database import Session # pylint: disable=E0401
+from database import (UserAuthTable, UserMailaddrTable, # pylint: disable=E0401
+                      UserValidationTable) 
 from security import secure_hashing, mask_mailaddr
 
 
@@ -22,50 +22,72 @@ def auth(name: str, plain_password: str) -> int:
         )
     ).count()
 
-def add(name: str, plain_password: str, mailaddr: str) -> int:
+def add(name: str, plain_password: str, mailaddr: str) -> bool:
     try:
-        uat = UserAuthTable(name, plain_password)
-        count = uat.scalar()
-        session.add(uat)
-        if count > 0:
-            id = session.query(UserAuthTable.id).filter_by(name=name).first()
-            session.begin()
-            umt = UserMailaddrTable(id, mailaddr)
-            session.add(umt)
-            uvt = UserValidationTable(id, mailaddr)
-            session.add(uvt)
+        user_adding = UserAuthTable(name, plain_password)
+        session.add(user_adding)
+        user_added = session.query(UserAuthTable).filter_by(name=name).first()
+        if user_adding == user_added:
+            um = UserMailaddrTable(user_added.id, mailaddr)
+            session.add(um)
+            uv = UserValidationTable(user_added.id, mailaddr)
+            session.add(uv)
     except IntegrityError:
         session.rollback()
-    finally:
-            session.commit()
-    return count
-
-def validate(name: str, mailaddr: str, validation_code: str) -> int:
-    hashed_mailaddr = secure_hashing(mailaddr)
-    id = session.query(UserAuthTable.id).filter_by(name=name).first()
-    uvt = session.query(UserValidationTable).filter(
-        and_(UserValidationTable.id == id,
-            UserValidationTable.hashed_mailaddr == hashed_mailaddr,
-            UserValidationTable.validation_code == validation_code,
-        )
-    ).first()
-    count = uvt.scalar()
-    if count > 0:
-        session.delete(uvt)
-        uat = session.query(UserAuthTable).filter_by(id=id).first()
-        uat.status = 'Active'
-        session.commit()
-    return count
-
-def delete(name: str) -> int:
-    uat = session.query(UserAuthTable).filter_by(name=name).first()
-    id = uat.id
-    count = uat.scalar()
-    if count > 0:
-        session.delete(uat)
-        umt = session.query(UserMailaddrTable).filter_by(id=id).first()
-        count = umt.scalar()
-        if count > 0:
-            session.delete(umt)
+        return False
+    except:
+        session.rollback()
+        raise
     session.commit()
-    return count
+    return True
+
+def get_validation_code(name: str) -> str:
+    user = session.query(UserAuthTable).filter_by(name=name).first()
+    if user:
+        id = int(user.id)
+        uv = session.query(UserValidationTable).filter_by(id=id).first()
+        if uv:
+            return uv.validation_code
+    return None
+ 
+def validate(name: str, mailaddr: str, validation_code: str) -> bool:
+    user = session.query(UserAuthTable).filter_by(name=name).first()
+    if user:
+        id = int(user.id)
+        hashed_mailaddr = secure_hashing(mailaddr)
+        uv = session.query(UserValidationTable).filter(
+            and_(UserValidationTable.id == user.id,
+                UserValidationTable.hashed_mailaddr == hashed_mailaddr,
+                UserValidationTable.validation_code == validation_code,
+            )
+        ).first()
+        if uv:
+            try:
+                session.delete(uv)
+                user = session.query(UserAuthTable).filter_by(id=id).first()
+                user.status = 'Active'
+                session.commit()
+                return True
+            except:
+                session.rollback()
+                raise
+    return False
+
+def delete(name: str) -> bool:
+    user = session.query(UserAuthTable).filter_by(name=name).first()
+    if user:
+        try:
+            id = user.id
+            session.delete(user)
+            um = session.query(UserMailaddrTable).filter_by(id=id).first()
+            if um:
+                session.delete(um)
+            uv = session.query(UserValidationTable).filter_by(id=id).first()
+            if uv:
+                session.delete(uv)
+            session.commit()
+            return True
+        except:
+            session.rollback()
+            raise
+    return False

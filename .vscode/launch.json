@@ -10,10 +10,10 @@
             "request": "launch",
             "program": "${workspaceFolder}/orm/util.py",
             "args": [
-                "add",
+                "validate",
                 "keys",
-                "password",
                 "hoge@example.com",
+                "9Xz5d8ZR",
             ]
         },
         {
