@@ -14,7 +14,7 @@ from flask_login import LoginManager
 from flask_login import login_required, login_user, logout_user, \
 current_user
 
-from mogmog.userlist import LoginUser, UserList
+from mogmog.userlist import LoginUser
 from mogmog.views import LoginForm, LogoutConfirmForm
 from orm import user
 
@@ -25,8 +25,6 @@ app.config.from_envvar('FLASK_SETTINGS', silent=True)
 login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = 'user_login'
-
-# user_list = UserList('sqlite:///userlist.sqlite3')
 
 @app.route('/')
 def path_route():

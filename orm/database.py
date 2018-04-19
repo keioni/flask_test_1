@@ -9,7 +9,7 @@ from sqlalchemy import Column, Integer, String
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
 
-from security import secure_hashing, mask_mailaddr
+from orm.security import secure_hashing, mask_mailaddr
 
 
 engine = create_engine('sqlite:///userlist.sqlite3', echo=True)

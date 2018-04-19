@@ -7,9 +7,9 @@ from hashlib import sha256
 from base64 import b64decode, b64encode
 from sqlalchemy import create_engine
 
-from security import salt
-from database import Base
-import user
+from orm.security import salt
+from orm.database import Base
+import orm.user as user
 
 salt = "oajokkN6AkwZB4wA0XpFtzlJpYYTVB7a9JkjV56PMAs=".encode('utf-8')
 args = sys.argv

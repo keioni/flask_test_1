@@ -5,10 +5,10 @@ from hmac import compare_digest
 from sqlalchemy import and_
 from sqlalchemy.exc import IntegrityError
 
-from database import Session # pylint: disable=E0401
-from database import (UserAuthTable, UserMailaddrTable, # pylint: disable=E0401
-                      UserValidationTable) 
-from security import secure_hashing, mask_mailaddr
+from orm.database import Session
+from orm.database import (UserAuthTable, UserMailaddrTable,
+                      UserValidationTable)
+from orm.security import secure_hashing, mask_mailaddr
 
 
 session = Session()
