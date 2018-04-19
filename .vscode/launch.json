@@ -8,9 +8,9 @@
             "name": "Python: database test",
             "type": "python",
             "request": "launch",
-            "program": "${workspaceFolder}/mogmog/util.py",
+            "program": "${workspaceFolder}/orm/util.py",
             "args": [
-                "query",
+                "create",
                 "keys",
                 "password",
             ]

@@ -1,11 +1,13 @@
 # -*- coding: utf-8 -*-
 
 import os
+import re
 from hashlib import blake2b # pylint: disable=E0611
 from hmac import compare_digest
 from base64 import b64decode, b64encode
 
-salt = os.environ.get('BLAKE2B_SALT').encode('utf-8')
+salt: str = ''
+pat_mailaddr = re.compile(r'^[a-zA-Z0-9_\.\-]+@[a-zA-Z0-9_\.\-]+$')
 
 def secure_hashing(value: str) -> str:
     h = blake2b(key=salt, digest_size=32)
@@ -13,5 +15,9 @@ def secure_hashing(value: str) -> str:
     return b64encode(h.digest()).decode()
 
 def mask_mailaddr(mailaddr: str) -> str:
-    return mailaddr
+    match = pat_mailaddr.search()
+    if match:
+        user = match.group(0)
+        domain = match.group(1)
+    return user + domain
 

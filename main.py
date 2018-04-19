@@ -16,7 +16,7 @@ current_user
 
 from mogmog.userlist import LoginUser, UserList
 from mogmog.views import LoginForm, LogoutConfirmForm
-from orm.user import auth_user
+from orm import user
 
 
 app = Flask(__name__)
@@ -50,7 +50,7 @@ def user_login():
             if form.validate_on_submit():
                 username = request.form.get('username')
                 password = request.form.get('password')
-                if auth_user(username, password):
+                if user.auth(username, password):
                     login_user(LoginUser(username))
                     flash('Login successfully.', 'info')
                     return redirect(request.args.get('next') or url_for('path_route'))

@@ -3,38 +3,69 @@
 from hmac import compare_digest
 
 from sqlalchemy import and_
-from orm.database import UserList, UserMailaddr, Session
-from orm.security import secure_hashing, mask_mailaddr
+from sqlalchemy.exc import IntegrityError
+
+from database import Session
+from database import UserAuthTable, UserMailaddrTable, \
+                         UserValidationTable
+from security import secure_hashing, mask_mailaddr
 
 
 session = Session()
 
-def auth_user(username: str, plain_password: str) -> int:
+def auth(name: str, plain_password: str) -> int:
     password = secure_hashing(plain_password)
-    return session.query(UserList).filter(
+    return session.query(UserAuthTable).filter(
         and_(
-            UserList.username == username,
-            UserList.password == password
+            UserAuthTable.name == name,
+            UserAuthTable.password == password
         )
     ).count()
 
-def add_user(username: str, plain_password: str, plain_mailaddr: str) -> int:
-    ul = UserList(username, plain_password, plain_mailaddr)
-    count = session.add(ul)
-    session.commit()
+def add(name: str, plain_password: str, mailaddr: str) -> int:
+    try:
+        uat = UserAuthTable(name, plain_password)
+        count = uat.scalar()
+        session.add(uat)
+        if count > 0:
+            id = session.query(UserAuthTable.id).filter_by(name=name).first()
+            session.begin()
+            umt = UserMailaddrTable(id, mailaddr)
+            session.add(umt)
+            uvt = UserValidationTable(id, mailaddr)
+            session.add(uvt)
+    except IntegrityError:
+        session.rollback()
+    finally:
+            session.commit()
+    return count
+
+def validate(name: str, mailaddr: str, validation_code: str) -> int:
+    hashed_mailaddr = secure_hashing(mailaddr)
+    id = session.query(UserAuthTable.id).filter_by(name=name).first()
+    uvt = session.query(UserValidationTable).filter(
+        and_(UserValidationTable.id == id,
+            UserValidationTable.hashed_mailaddr == hashed_mailaddr,
+            UserValidationTable.validation_code == validation_code,
+        )
+    ).first()
+    count = uvt.scalar()
     if count > 0:
-        um = UserMailaddr(username, plain_mailaddr)
-        session.add(um)
+        session.delete(uvt)
+        uat = session.query(UserAuthTable).filter_by(id=id).first()
+        uat.status = 'Active'
         session.commit()
     return count
 
-def delete_user(self, username: str) -> int:
-    ul = session.query(UserList).filter_by(username=username).first()
-    password = secure_hashing(ul.password)
-    count = session.delete(ul)
-    session.commit()
+def delete(name: str) -> int:
+    uat = session.query(UserAuthTable).filter_by(name=name).first()
+    id = uat.id
+    count = uat.scalar()
     if count > 0:
-        um = session.query(UserMailaddr).filter_by(password=password).first()
-        session.delete(um)
-        session.commit()
+        session.delete(uat)
+        umt = session.query(UserMailaddrTable).filter_by(id=id).first()
+        count = umt.scalar()
+        if count > 0:
+            session.delete(umt)
+    session.commit()
     return count
