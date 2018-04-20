@@ -14,21 +14,27 @@ from orm.security import secure_hashing, generate_validation_code
 
 
 def auth_user(name: str, plain_password: str, salt: str='') -> bool:
+    """
+    Short cut for authenticating user purpose only.
+    When 'salt' is not specified, get form OS environment valiable.
+    Session is open and close every calling.
+    """
+
     user_man = GnunuUserManager(salt)
     ret = user_man.auth(name, plain_password)
     user_man.close_session()
     return ret
 
 class GnunuUserManager:
+    """
+    User Manager:
+    Managing authenticating, adding, validating, and deleting user.
+
+    If 'salt' is not set, obtain from OS environment variable.
+    'session' is expert option. If you still open session, use this option.
+    """
 
     def __init__(self, salt: str='', session=None):
-        """
-        Constructor:
-
-        If 'salt' is not set, obtain from OS Environment.
-        'session' is expert option. If you still open session, use this option.
-        """
-
         if salt == '':
             salt = os.environ.get('BLAKE2B_SALT')
         self.salt = salt.encode('utf-8')
@@ -45,10 +51,10 @@ class GnunuUserManager:
         self.session.close()
 
     def get_user(self, key: Union[str, int]) -> str:
-        if isinstance(key) == str:
+        if isinstance(key, str):
             return self.session.query(UserAuthTable). \
                     filter_by(name=key).first()
-        elif isinstance(key) == int:
+        elif isinstance(key, int):
             return self.session.query(UserAuthTable). \
                     filter_by(id=key).first()
         else:

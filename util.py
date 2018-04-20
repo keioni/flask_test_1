@@ -9,8 +9,8 @@ from base64 import b64encode
 from orm.database import Base
 from orm.user import GnunuUserManager
 
-
-user = GnunuUserManager("oajokkN6AkwZB4wA0XpFtzlJpYYTVB7a9JkjV56PMAs=")
+os.environ['BLAKE2B_SALT'] = 'oajokkN6AkwZB4wA0XpFtzlJpYYTVB7a9JkjV56PMAs='
+user = GnunuUserManager()
 
 args = sys.argv
 if args[1] == 'create':
