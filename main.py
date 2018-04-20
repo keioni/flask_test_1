@@ -16,7 +16,7 @@ current_user
 
 from mogmog.userlist import LoginUser
 from mogmog.views import LoginForm, LogoutConfirmForm
-from orm.user import GnunuUserManager
+from orm import user as userman
 
 
 app = Flask(__name__)
@@ -25,6 +25,8 @@ app.config.from_envvar('FLASK_SETTINGS', silent=True)
 login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = 'user_login'
+
+user = userman.GnunuUserManager()
 
 @app.route('/')
 def path_route():
@@ -48,15 +50,14 @@ def user_login():
             if form.validate_on_submit():
                 username = request.form.get('username')
                 password = request.form.get('password')
-                userman = GnunuUserManager()
-                if userman.auth(username, password):
+                if user.auth(username, password):
                     login_user(LoginUser(username))
                     flash('Login successfully.', 'info')
-                    userman.close_session()
+                    user.close_session()
                     return redirect(request.args.get('next') or url_for('path_route'))
                 else:
                     flash('Invalid user name or password.', 'error')
-                    userman.close_session()
+                    user.close_session()
                     return redirect(url_for('user_login'))
         flash('Invalid operation.', 'error')
         return redirect(url_for('user_login'))
