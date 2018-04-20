@@ -2,15 +2,12 @@
 # -*- coding: utf-8 -*-
 
 import sys
-import os
-from hashlib import sha256
-from base64 import b64encode
 
 from orm.database import Base
 from orm.user import GnunuUserManager
 
-os.environ['BLAKE2B_SALT'] = 'oajokkN6AkwZB4wA0XpFtzlJpYYTVB7a9JkjV56PMAs='
-user = GnunuUserManager()
+BLAKE2B_SALT = 'oajokkN6AkwZB4wA0XpFtzlJpYYTVB7a9JkjV56PMAs='
+user = GnunuUserManager(BLAKE2B_SALT)
 
 args = sys.argv
 if args[1] == 'create':
@@ -35,5 +32,5 @@ elif args[1] == 'delete':
         print('FAILED: delete_user({})'.format(args[2]))
 # elif args[1] == 'query':
 #     print(db.auth_user(args[2], args[3]))
-elif args[1] == 'key':
-    print(b64encode(sha256(os.urandom(24)).digest()).decode('utf-8'))
+# elif args[1] == 'key':
+#     print(b64encode(sha256(os.urandom(24)).digest()).decode('utf-8'))

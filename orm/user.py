@@ -17,7 +17,7 @@ def auth_user(name: str, plain_password: str, salt: str='') -> bool:
     """
     Short cut for authenticating user purpose only.
     When 'salt' is not specified, get form OS environment valiable.
-    Session is open and close every calling.
+    Session is opened and closed every calling.
     """
 
     user_man = GnunuUserManager(salt)

@@ -9,7 +9,7 @@ from base64 import b64encode
 
 PAT_MAILADDR = r'^([a-zA-Z0-9_\.\-]+)@([a-zA-Z0-9_\.\-]+)$'
 
-def generate_validation_code(number_of_digits: int = 8):
+def generate_validation_code(number_of_digits: int=8):
     alphabet = string.ascii_letters + string.digits
     return ''.join(choice(alphabet) for i in range(number_of_digits))
 
