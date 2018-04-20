@@ -48,15 +48,15 @@ def user_login():
             if form.validate_on_submit():
                 username = request.form.get('username')
                 password = request.form.get('password')
-                userman = GnunuUserManager()
-                if userman.auth(username, password):
+                user_man = GnunuUserManager()
+                if user_man.auth(username, password):
                     login_user(LoginUser(username))
                     flash('Login successfully.', 'info')
-                    userman.close_session()
+                    user_man.close_session()
                     return redirect(request.args.get('next') or url_for('path_route'))
                 else:
                     flash('Invalid user name or password.', 'error')
-                    userman.close_session()
+                    user_man.close_session()
                     return redirect(url_for('user_login'))
         flash('Invalid operation.', 'error')
         return redirect(url_for('user_login'))
