@@ -6,7 +6,6 @@
     by Kei Onimaru <otegami@devel.keys.jp>
 """
 
-import os
 from flask import Flask
 from flask import render_template, request, redirect, \
 flash, url_for
@@ -16,7 +15,7 @@ current_user
 
 from mogmog.userlist import LoginUser
 from mogmog.views import LoginForm, LogoutConfirmForm
-from orm.user import GnunuUserManager
+from orm.user import auth_user
 
 
 app = Flask(__name__)
@@ -48,15 +47,12 @@ def user_login():
             if form.validate_on_submit():
                 username = request.form.get('username')
                 password = request.form.get('password')
-                user_man = GnunuUserManager()
-                if user_man.auth(username, password):
+                if auth_user(username, password):
                     login_user(LoginUser(username))
                     flash('Login successfully.', 'info')
-                    user_man.close_session()
                     return redirect(request.args.get('next') or url_for('path_route'))
                 else:
                     flash('Invalid user name or password.', 'error')
-                    user_man.close_session()
                     return redirect(url_for('user_login'))
         flash('Invalid operation.', 'error')
         return redirect(url_for('user_login'))
