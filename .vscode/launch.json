@@ -8,13 +8,16 @@
             "name": "Python: database test",
             "type": "python",
             "request": "launch",
-            "program": "${workspaceFolder}/orm/util.py",
+            "program": "${workspaceFolder}/util.py",
             "args": [
                 "validate",
                 "keys",
-                "hoge@example.com",
-                "9Xz5d8ZR",
-            ]
+                "sample@example.com",
+                "6svtwLzs",
+            ],
+            "env": {
+                "BLAKE2B_SALT": "oajokkN6AkwZB4wA0XpFtzlJpYYTVB7a9JkjV56PMAs=",
+            },
         },
         {
             "name": "Python: Current File",

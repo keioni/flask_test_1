@@ -1,15 +1,14 @@
 # -*- coding: utf-8 -*-
 
-import string
 import time
-from random import choice
 
 from sqlalchemy import create_engine
 from sqlalchemy import Column, Integer, String
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
 
-from orm.security import secure_hashing, mask_mailaddr
+from orm.security import secure_hashing, mask_mailaddr, \
+        generate_validation_code
 
 
 engine = create_engine('sqlite:///userlist.sqlite3', echo=True)
@@ -26,9 +25,9 @@ class UserAuthTable(Base):
     ctime = Column('ctime', Integer)
     mtime = Column('mtime', Integer)
 
-    def __init__(self, name: str, plain_password: str):
+    def __init__(self, name: str, plain_password: str, salt: str):
         self.name = name
-        self.password = secure_hashing(plain_password)
+        self.password = secure_hashing(plain_password, salt)
         self.status = ''
         self.ctime = self.mtime = int(time.time())
 
@@ -51,9 +50,9 @@ class UserMailaddrTable(Base):
     hashed_mailaddr = Column('hashed_mailaddr', String, unique=True)
     masked_mailaddr = Column('masked_mailaddr', String)
 
-    def __init__(self, user_id: int, mailaddr: str):
+    def __init__(self, user_id: int, mailaddr: str, salt: str):
         self.id = user_id
-        self.hashed_mailaddr = secure_hashing(mailaddr)
+        self.hashed_mailaddr = secure_hashing(mailaddr, salt)
         self.masked_mailaddr = mask_mailaddr(mailaddr)
 
     def __repr__(self):
@@ -73,11 +72,15 @@ class UserValidationTable(Base):
     validation_code = Column('validation_code', String)
     expire_time = Column('expire_time', Integer)
 
-    def __init__(self, user_id: int, mailaddr: str):
+    def __init__(self, user_id: int, mailaddr: str, salt: str, validation_code: str = ''):
         self.id = user_id
-        self.hashed_mailaddr = secure_hashing(mailaddr)
-        alphabet = string.ascii_letters + string.digits
-        self.validation_code = ''.join(choice(alphabet) for i in range(8))
+        self.hashed_mailaddr = secure_hashing(mailaddr, salt)
+        self.validation_code = ''
+        if validation_code != '':
+            self.validation_code = validation_code
+        else:
+            if self.validation_code != '':
+                self.validation_code = generate_validation_code()
         self.expire_time = int(time.time()) + 3600
 
     def __repr__(self):
@@ -88,4 +91,3 @@ class UserValidationTable(Base):
             "expire_time={}".format(self.expire_time),
         ])
         return "<UserRegisterValidationTable({})".format(repr_args)
-

@@ -7,28 +7,24 @@ from hashlib import sha256
 from base64 import b64encode
 
 from orm.database import Base
-import orm.security as security
-import orm.user as user
+from orm.user import GnunuUserManager
 
-security.salt = "oajokkN6AkwZB4wA0XpFtzlJpYYTVB7a9JkjV56PMAs=".encode('utf-8')
+
+user = GnunuUserManager("oajokkN6AkwZB4wA0XpFtzlJpYYTVB7a9JkjV56PMAs=")
+
 args = sys.argv
-
 if args[1] == 'create':
     Base.metadata.create_all()
 elif args[1] == 'drop':
     Base.metadata.drop_all()
 elif args[1] == 'add':
-    if user.add(args[2], args[3], args[4]):
-        print('user:{} added.'.format(args[2]))
+    vcode = user.add(args[2], args[3], args[4])  
+    if vcode:
+        print('user:{} added. [{}]'.format(args[2], vcode))
     else:
         print('FAILED: add_user({})'.format(args[2]))
 elif args[1] == 'validate':
-    if len(args) > 4:
-        vcode = args[4]
-    else:
-        vcode = user.get_validation_code(args[2])
-        print("user:{}, vcode:{}".format(args[2], vcode))
-    if user.validate(args[2], args[3], vcode):
+    if user.validate(args[2], args[3], args[4]):
         print("user:{} validated.".format(args[2]))
     else:
         print('FAILED: validate_user({})'.format(args[2]))
