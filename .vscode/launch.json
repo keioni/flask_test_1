@@ -10,9 +10,8 @@
             "request": "launch",
             "program": "${workspaceFolder}/util.py",
             "args": [
-                "validate",
-                "keys",
-                "sample@example.com",
+                "mail",
+                "keion@example.com",
                 "6svtwLzs",
             ],
             "env": {

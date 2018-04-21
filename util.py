@@ -30,6 +30,9 @@ elif args[1] == 'delete':
         print('user:{} deleted.'.format(args[2]))
     else:
         print('FAILED: delete_user({})'.format(args[2]))
+elif args[1] == 'mail':
+    from orm.security import mask_mailaddr
+    print('mailaddr: {}'.format(mask_mailaddr(args[2])))
 # elif args[1] == 'query':
 #     print(db.auth_user(args[2], args[3]))
 # elif args[1] == 'key':
