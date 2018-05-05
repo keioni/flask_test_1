@@ -75,13 +75,12 @@ class GnunuUserManager:
 
     def add(self, name: str, plain_password: str, mailaddr: str) -> str:
         try:
-            user_adding = UsersAuthData(name, plain_password, self.salt)
+            user_adding = UsersAuthData(name, mailaddr, plain_password)
             self.session.add(user_adding)
             user_added = self.get_user(name)
             if user_adding == user_added:
                 self.session.add(UsersProfile(
                     user_added.id,
-                    mailaddr,
                 ))
                 validation_code = generate_validation_code()
                 self.session.add(UserValidationTable(

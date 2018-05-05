@@ -3,4 +3,4 @@
 import configparser
 
 conf = configparser.ConfigParser()
-conf.read_file('settings.conf')
+conf.read_file('settings.cfg')

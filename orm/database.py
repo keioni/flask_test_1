@@ -25,10 +25,10 @@ class UsersAuthData(Base):
     create_time = Column('create_time', Integer)
     last_login = Column('last_login', Integer)
 
-    def __init__(self, name: str, mailaddr: str, plain_password: str, salt: str):
+    def __init__(self, name: str, mailaddr: str, plain_password: str):
         self.name = name
         self.mailaddr = mailaddr
-        self.password = secure_hashing(plain_password, salt)
+        self.password = secure_hashing(plain_password, '')
         self.valid = False
         self.create_time = self.last_login = int(time.time())
 
