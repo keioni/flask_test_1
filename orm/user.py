@@ -8,7 +8,7 @@ from sqlalchemy import and_
 from sqlalchemy.exc import IntegrityError
 
 from orm.database import Session
-from orm.database import (UserAuthTable, UserMailaddrTable,
+from orm.database import (UsersAuthData, UsersProfile,
                           UserValidationTable)
 from orm.security import secure_hashing, generate_validation_code
 
@@ -50,22 +50,22 @@ class GnunuUserManager:
     def close_session(self):
         self.session.close()
 
-    def get_user(self, key: Union[str, int]) -> str:
+    def get_user(self, key: Union[str, int]):
         if isinstance(key, str):
-            return self.session.query(UserAuthTable). \
+            return self.session.query(UsersAuthData). \
                     filter_by(name=key).first()
         elif isinstance(key, int):
-            return self.session.query(UserAuthTable). \
+            return self.session.query(UsersAuthData). \
                     filter_by(id=key).first()
         else:
-            return ''
+            return
 
     def auth(self, name: str, plain_password: str) -> bool:
         password = secure_hashing(plain_password, self.salt)
-        count = self.session.query(UserAuthTable).filter(
+        count = self.session.query(UsersAuthData).filter(
             and_(
-                UserAuthTable.name == name,
-                UserAuthTable.password == password
+                UsersAuthData.name == name,
+                UsersAuthData.password == password
             )
         ).count()
         if count == 0:
@@ -75,14 +75,13 @@ class GnunuUserManager:
 
     def add(self, name: str, plain_password: str, mailaddr: str) -> str:
         try:
-            user_adding = UserAuthTable(name, plain_password, self.salt)
+            user_adding = UsersAuthData(name, plain_password, self.salt)
             self.session.add(user_adding)
             user_added = self.get_user(name)
             if user_adding == user_added:
-                self.session.add(UserMailaddrTable(
+                self.session.add(UsersProfile(
                     user_added.id,
                     mailaddr,
-                    self.salt
                 ))
                 validation_code = generate_validation_code()
                 self.session.add(UserValidationTable(
@@ -131,7 +130,7 @@ class GnunuUserManager:
         try:
             user_id = user.id
             self.session.delete(user)
-            um = self.session.query(UserMailaddrTable). \
+            um = self.session.query(UsersProfile). \
                     filter_by(id=user_id).first()
             if um:
                 self.session.delete(um)
