@@ -8,4 +8,4 @@ from cyreco.sys.config import CONF
 
 engine = create_engine(CONF.db_connect_string, echo=CONF.debug_sql_print)
 Base = declarative_base(bind=engine)
-Session = sessionmaker(bind=engine)
+Session = sessionmaker(bind=engine, autocommit=False)

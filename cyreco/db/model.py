@@ -10,6 +10,7 @@ from cyreco.sys.config import CONF
 
 class UsersAuthData(Base):
     __tablename__ = 'users_authdata'
+    # __table_args__ = {'mysql_engine':'InnoDB'}
 
     id = Column('id', Integer, primary_key=True, autoincrement=True)
     name = Column('name', String(32), unique=True)

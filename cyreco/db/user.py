@@ -21,7 +21,6 @@ def auth_user(name: str, plain_password: str) -> bool:
 
     user_man = GnunuUserManager()
     ret = user_man.auth(name, plain_password)
-    user_man.close_session()
     return ret
 
 class GnunuUserManager:
@@ -32,112 +31,101 @@ class GnunuUserManager:
     'session' is expert option. If you still open session, use this option.
     """
 
-    def __init__(self, session=None):
-        if session:
-            self.session = session
-        else:
-            self.session = Session()
-        self.auth_code = ''
-
-    def __del__(self):
-        self.session.close()
-
-    def close_session(self):
-        self.session.close()
-
-    def get_user(self, key: Union[str, int]):
+    def get_user(self, key: Union[str, int], session):
         if isinstance(key, str):
-            return self.session.query(UsersAuthData). \
-                    filter_by(name=key).first()
+            return session.query(UsersAuthData).filter_by(name=key).first()
         elif isinstance(key, int):
-            return self.session.query(UsersAuthData). \
-                    filter_by(id=key).first()
+            return session.query(UsersAuthData).filter_by(id=key).first()
         else:
             return
 
     def auth(self, name: str, plain_password: str) -> bool:
         password = secure_hashing(plain_password, CONF.salt)
-        count = self.session.query(UsersAuthData).filter(
-            and_(
-                UsersAuthData.name == name,
-                UsersAuthData.password == password
-            )
-        ).count()
-        if count == 0:
-            return False
-        else:
-            return True
+        session = Session()
+        try:
+            count = session.query(UsersAuthData).filter(
+                and_(
+                    UsersAuthData.name == name,
+                    UsersAuthData.password == password
+                )
+            ).count()
+            if count == 0:
+                return False
+            else:
+                return True
+        except:
+            raise
 
     def add(self, name: str, plain_password: str, mailaddr: str) -> str:
+        session = Session()
         try:
             user_adding = UsersAuthData(
                 name,
                 plain_password,
                 mailaddr,
             )
-            self.session.add(user_adding)
-            user_added = self.get_user(name)
+            session.add(user_adding)
+            user_added = self.get_user(name, session)
             if user_adding == user_added:
-                self.session.add(UsersProfile(
+                session.add(UsersProfile(
                     user_added.id,
                 ))
                 auth_code = generate_auth_code('digit', 6)
-                self.session.add(UsersValidation(
+                session.add(UsersValidation(
                     user_added.id,
                     mailaddr,
                     auth_code,
                 ))
         except IntegrityError:
-            self.session.rollback()
+            session.rollback()
             return ''
         except:
-            self.session.rollback()
+            session.rollback()
             raise
-        self.session.commit()
+        session.commit()
         return auth_code
 
     def validate(self, name: str, mailaddr: str, auth_code: str) -> bool:
-        user = self.get_user(name)
-        if not user:
-            return False
-        user_id = int(user.id)
-        mailaddr = mailaddr
-        uv = self.session.query(UsersValidation).filter(
-            and_(UsersValidation.id == user_id,
-                 UsersValidation.mailaddr == mailaddr,
-                 UsersValidation.auth_code == auth_code,
-                )
-        ).first()
-        if uv:
-            try:
-                self.session.delete(uv)
-                user = self.get_user(user_id)
+        session = Session()
+        try:
+            user = self.get_user(name, session)
+            if not user:
+                return False
+            user_id = int(user.id)
+            mailaddr = mailaddr
+            uv = session.query(UsersValidation).filter(
+                and_(UsersValidation.id == user_id,
+                    UsersValidation.mailaddr == mailaddr,
+                    UsersValidation.auth_code == auth_code,
+                    )
+            ).first()
+            if uv:
+                session.delete(uv)
+                user = self.get_user(user_id, session)
                 user.valid = True
-                self.session.commit()
-                return True
-            except:
-                self.session.rollback()
-                raise
-        return False
+                session.add(user)
+        except:
+            session.rollback()
+            raise
+        session.commit()
+        return True
 
     def delete(self, name: str) -> bool:
-        user = self.get_user(name)
-        if not user:
-            return False
+        session = Session()
         try:
+            user = self.get_user(name, session)
+            if not user:
+                return False
             user_id = user.id
-            self.session.delete(user)
-            um = self.session.query(UsersProfile). \
-                    filter_by(id=user_id).first()
+            session.delete(user)
+            um = session.query(UsersProfile).filter_by(id=user_id).first()
             if um:
-                self.session.delete(um)
-            uv = self.session.query(UsersValidation) \
-                    .filter_by(id=user_id).first()
+                session.delete(um)
+            uv = session.query(UsersValidation).filter_by(id=user_id).first()
             if uv:
-                self.session.delete(uv)
-            self.session.commit()
-            return True
+                session.delete(uv)
         except:
-            self.session.rollback()
+            session.rollback()
             raise
-        return False
+        session.commit()
+        return True
