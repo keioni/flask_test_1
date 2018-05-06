@@ -4,9 +4,9 @@
 import sys
 
 from cyreco.db import Base
-from cyreco.db.user import GnunuUserManager
+from cyreco.db.user import CyrecoUserManager
 
-user = GnunuUserManager()
+user = CyrecoUserManager()
 
 args = sys.argv
 if args[1] == 'create':

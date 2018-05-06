@@ -15,20 +15,18 @@ from cyreco.sys.config import CONF
 
 def auth_user(name: str, plain_password: str) -> bool:
     """
-    Short cut for authenticating user purpose only.
-    Session is opened and closed every calling.
+    Short cut for authenticating user.
+    This makes user manager and it's call auth method.
     """
 
-    user_man = GnunuUserManager()
+    user_man = CyrecoUserManager()
     ret = user_man.auth(name, plain_password)
     return ret
 
-class GnunuUserManager:
+class CyrecoUserManager:
     """
     User Manager:
     Managing authenticating, adding, validating, and deleting user.
-
-    'session' is expert option. If you still open session, use this option.
     """
 
     def get_user(self, key: Union[str, int], session):
