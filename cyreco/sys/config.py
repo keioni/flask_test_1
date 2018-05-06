@@ -2,7 +2,10 @@
 
 import configparser
 
-conf = configparser.ConfigParser()
-conf.read('./settings.cfg', 'utf-8')
+CONF = configparser.ConfigParser()
+CONF.read('./settings.cfg', 'utf-8')
 
-conf.salt = conf['Securities']['encode_salt']
+# configurations
+CONF.salt = 'oajokkN6AkwZB4wA0XpFtzlJpYYTVB7a9JkjV56PMAs'
+CONF.validation_timeout_in_sec = 3600
+CONF.db_connect_string = 'sqlite:///userlist.sqlite3'

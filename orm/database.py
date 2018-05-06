@@ -8,10 +8,11 @@ from sqlalchemy.orm import sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
 
 from orm.security import secure_hashing, generate_auth_code
-from cyreco.sys.config import conf
+from cyreco.sys.config import CONF
 
 
-engine = create_engine('sqlite:///userlist.sqlite3', echo=True)
+# engine = create_engine('sqlite:///userlist.sqlite3', echo=True)
+engine = create_engine(CONF.db_connect_string, echo=True)
 Base = declarative_base(bind=engine)
 Session = sessionmaker(bind=engine)
 
@@ -30,7 +31,7 @@ class UsersAuthData(Base):
     def __init__(self, name: str, mailaddr: str, plain_password: str):
         self.name = name
         self.mailaddr = mailaddr
-        self.password = secure_hashing(plain_password, conf.salt)
+        self.password = secure_hashing(plain_password, CONF.salt)
         self.valid = False
         self.create_time = self.last_login = int(time.time())
 
@@ -72,7 +73,7 @@ class UsersValidation(Base):
     expire_time = Column('expire_time', Integer)
 
     def __init__(self, user_id: int, mailaddr: str, auth_code: str):
-        times_to_expire = conf['Securities']['validation_timeout_in_sec']
+        times_to_expire = CONF.validation_timeout_in_sec
         self.id = user_id
         self.mailaddr = mailaddr
         self.auth_code = auth_code

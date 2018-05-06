@@ -11,7 +11,7 @@ from orm.database import Session
 from orm.database import UsersAuthData, UsersProfile, UsersValidation
 from orm.security import secure_hashing, generate_auth_code
 
-from cyreco.sys.config import conf
+from cyreco.sys.config import CONF
 
 
 def auth_user(name: str, plain_password: str) -> bool:
@@ -57,7 +57,7 @@ class GnunuUserManager:
             return
 
     def auth(self, name: str, plain_password: str) -> bool:
-        password = secure_hashing(plain_password, conf.salt)
+        password = secure_hashing(plain_password, CONF.salt)
         count = self.session.query(UsersAuthData).filter(
             and_(
                 UsersAuthData.name == name,
