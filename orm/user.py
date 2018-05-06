@@ -8,8 +8,7 @@ from sqlalchemy import and_
 from sqlalchemy.exc import IntegrityError
 
 from orm.database import Session
-from orm.database import (UsersAuthData, UsersProfile,
-                          UsersValidation)
+from orm.database import UsersAuthData, UsersProfile, UsersValidation
 from orm.security import secure_hashing, generate_auth_code
 
 from cyreco.sys.config import conf

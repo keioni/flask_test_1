@@ -72,10 +72,11 @@ class UsersValidation(Base):
     expire_time = Column('expire_time', Integer)
 
     def __init__(self, user_id: int, mailaddr: str, auth_code: str):
+        times_to_expire = conf['Securities']['validation_timeout_in_sec']
         self.id = user_id
         self.mailaddr = mailaddr
         self.auth_code = auth_code
-        self.expire_time = int(time.time()) + 3600
+        self.expire_time = time.time() + int(times_to_expire)
 
     def __repr__(self):
         repr_args = ', '.join([

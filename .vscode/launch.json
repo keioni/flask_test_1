@@ -10,9 +10,10 @@
             "request": "launch",
             "program": "${workspaceFolder}/util.py",
             "args": [
-                "mail",
+                "add",
+                "hoge",
                 "keion@example.com",
-                "6svtwLzs",
+                "password"
             ],
             "env": {
                 "BLAKE2B_SALT": "oajokkN6AkwZB4wA0XpFtzlJpYYTVB7a9JkjV56PMAs=",
