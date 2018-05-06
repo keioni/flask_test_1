@@ -6,8 +6,7 @@ import sys
 from orm.database import Base
 from orm.user import GnunuUserManager
 
-BLAKE2B_SALT = 'oajokkN6AkwZB4wA0XpFtzlJpYYTVB7a9JkjV56PMAs='
-user = GnunuUserManager(BLAKE2B_SALT)
+user = GnunuUserManager()
 
 args = sys.argv
 if args[1] == 'create':
@@ -15,11 +14,16 @@ if args[1] == 'create':
 elif args[1] == 'drop':
     Base.metadata.drop_all()
 elif args[1] == 'add':
-    vcode = user.add(args[2], args[3], args[4])  
+    vcode = user.add(args[2], args[3], args[4])
     if vcode:
         print('user:{} added. [{}]'.format(args[2], vcode))
     else:
         print('FAILED: add_user({})'.format(args[2]))
+elif args[1] == 'auth':
+    if user.auth(args[2], args[3]):
+        print("user:{} authenticated.".format(args[2]))
+    else:
+        print("FAILED: auth_user({}).".format(args[2]))
 elif args[1] == 'validate':
     if user.validate(args[2], args[3], args[4]):
         print("user:{} validated.".format(args[2]))

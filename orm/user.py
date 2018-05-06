@@ -9,18 +9,19 @@ from sqlalchemy.exc import IntegrityError
 
 from orm.database import Session
 from orm.database import (UsersAuthData, UsersProfile,
-                          UserValidationTable)
-from orm.security import secure_hashing, generate_validation_code
+                          UsersValidation)
+from orm.security import secure_hashing, generate_auth_code
+
+from cyreco.sys.config import conf
 
 
-def auth_user(name: str, plain_password: str, salt: str='') -> bool:
+def auth_user(name: str, plain_password: str) -> bool:
     """
     Short cut for authenticating user purpose only.
-    When 'salt' is not specified, get form OS environment valiable.
     Session is opened and closed every calling.
     """
 
-    user_man = GnunuUserManager(salt)
+    user_man = GnunuUserManager()
     ret = user_man.auth(name, plain_password)
     user_man.close_session()
     return ret
@@ -30,19 +31,15 @@ class GnunuUserManager:
     User Manager:
     Managing authenticating, adding, validating, and deleting user.
 
-    If 'salt' is not set, obtain from OS environment variable.
     'session' is expert option. If you still open session, use this option.
     """
 
-    def __init__(self, salt: str='', session=None):
-        if salt == '':
-            salt = os.environ.get('BLAKE2B_SALT')
-        self.salt = salt.encode('utf-8')
+    def __init__(self, session=None):
         if session:
             self.session = session
         else:
             self.session = Session()
-        self.validation_code = ''
+        self.auth_code = ''
 
     def __del__(self):
         self.session.close()
@@ -61,7 +58,7 @@ class GnunuUserManager:
             return
 
     def auth(self, name: str, plain_password: str) -> bool:
-        password = secure_hashing(plain_password, self.salt)
+        password = secure_hashing(plain_password, conf.salt)
         count = self.session.query(UsersAuthData).filter(
             and_(
                 UsersAuthData.name == name,
@@ -75,19 +72,22 @@ class GnunuUserManager:
 
     def add(self, name: str, plain_password: str, mailaddr: str) -> str:
         try:
-            user_adding = UsersAuthData(name, mailaddr, plain_password)
+            user_adding = UsersAuthData(
+                name,
+                mailaddr,
+                plain_password,
+            )
             self.session.add(user_adding)
             user_added = self.get_user(name)
             if user_adding == user_added:
                 self.session.add(UsersProfile(
                     user_added.id,
                 ))
-                validation_code = generate_validation_code()
-                self.session.add(UserValidationTable(
+                auth_code = generate_auth_code('digit', 6)
+                self.session.add(UsersValidation(
                     user_added.id,
                     mailaddr,
-                    self.salt,
-                    validation_code
+                    auth_code,
                 ))
         except IntegrityError:
             self.session.rollback()
@@ -96,25 +96,25 @@ class GnunuUserManager:
             self.session.rollback()
             raise
         self.session.commit()
-        return validation_code
+        return auth_code
 
-    def validate(self, name: str, mailaddr: str, validation_code: str) -> bool:
+    def validate(self, name: str, mailaddr: str, auth_code: str) -> bool:
         user = self.get_user(name)
         if not user:
             return False
         user_id = int(user.id)
-        hashed_mailaddr = secure_hashing(mailaddr, self.salt)
-        uv = self.session.query(UserValidationTable).filter(
-            and_(UserValidationTable.id == user_id,
-                 UserValidationTable.hashed_mailaddr == hashed_mailaddr,
-                 UserValidationTable.validation_code == validation_code,
+        mailaddr = mailaddr
+        uv = self.session.query(UsersValidation).filter(
+            and_(UsersValidation.id == user_id,
+                 UsersValidation.mailaddr == mailaddr,
+                 UsersValidation.auth_code == auth_code,
                 )
         ).first()
         if uv:
             try:
                 self.session.delete(uv)
                 user = self.get_user(user_id)
-                user.status = 'Active'
+                user.valid = True
                 self.session.commit()
                 return True
             except:
@@ -133,7 +133,7 @@ class GnunuUserManager:
                     filter_by(id=user_id).first()
             if um:
                 self.session.delete(um)
-            uv = self.session.query(UserValidationTable) \
+            uv = self.session.query(UsersValidation) \
                     .filter_by(id=user_id).first()
             if uv:
                 self.session.delete(uv)
