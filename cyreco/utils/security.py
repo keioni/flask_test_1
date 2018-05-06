@@ -2,8 +2,6 @@
 
 import string
 from random import choice
-from typing import Union
-
 from hashlib import blake2b # pylint: disable=E0611
 from base64 import b64encode
 

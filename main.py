@@ -15,7 +15,7 @@ current_user
 
 from mogmog.userlist import LoginUser
 from mogmog.views import LoginForm, LogoutConfirmForm
-from orm.user import auth_user
+from cyreco.db.user import auth_user
 
 
 app = Flask(__name__)

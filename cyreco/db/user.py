@@ -7,12 +7,11 @@ from typing import Union
 from sqlalchemy import and_
 from sqlalchemy.exc import IntegrityError
 
-from orm.database import Session
-from orm.database import UsersAuthData, UsersProfile, UsersValidation
-from orm.security import secure_hashing, generate_auth_code
+from cyreco.db import Session
+from cyreco.db.model import UsersAuthData, UsersProfile, UsersValidation
+from cyreco.utils.security import secure_hashing, generate_auth_code
 
 from cyreco.sys.config import CONF
-
 
 def auth_user(name: str, plain_password: str) -> bool:
     """

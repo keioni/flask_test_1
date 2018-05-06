@@ -3,8 +3,8 @@
 
 import sys
 
-from orm.database import Base
-from orm.user import GnunuUserManager
+from cyreco.db import Base
+from cyreco.db.user import GnunuUserManager
 
 user = GnunuUserManager()
 
@@ -35,7 +35,7 @@ elif args[1] == 'delete':
     else:
         print('FAILED: delete_user({})'.format(args[2]))
 elif args[1] == 'mail':
-    from orm.security import mask_mailaddr
+    from cyreco.utils.security import mask_mailaddr
     print('mailaddr: {}'.format(mask_mailaddr(args[2])))
 # elif args[1] == 'query':
 #     print(db.auth_user(args[2], args[3]))
