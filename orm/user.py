@@ -73,8 +73,8 @@ class GnunuUserManager:
         try:
             user_adding = UsersAuthData(
                 name,
-                mailaddr,
                 plain_password,
+                mailaddr,
             )
             self.session.add(user_adding)
             user_added = self.get_user(name)
