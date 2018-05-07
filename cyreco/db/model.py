@@ -86,6 +86,8 @@ class UsersValidation(Base):
 #     pass
 
 
-# class UsersRecord(Base):
-#     __tablename__ = 'users_record'
-#     pass
+class UsersRecord(Base):
+    __tablename__ = 'users_record'
+    # __table_args__ = {'mysql_engine':'InnoDB'}
+
+    id = Column('id', Integer, primary_key=True)
