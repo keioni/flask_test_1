@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 
-
 from typing import Union
 
 from sqlalchemy import and_
@@ -101,7 +100,7 @@ class CyrecoUserManager:
             if uv:
                 session.delete(uv)
                 user = self.get_user(user_id, session)
-                user.valid = True
+                user.is_valid = True
                 session.add(user)
         except:
             session.rollback()
@@ -132,22 +131,16 @@ class CyrecoUserManager:
     def modify(self) -> bool:
         pass
 
-    def __activate_deactivate(self, name: str, active: bool) -> bool:
+    def activate_deactivate(self, name: str, flag: bool) -> bool:
         session = Session()
         try:
             user = self.get_user(name, session)
             if not user:
                 return False
-            user.active = active
+            user.is_active = flag
             session.add(user)
         except:
             session.rollback()
             raise
         session.commit()
         return True
-
-    def activate(self, name: str) -> bool:
-        return self.__activate_deactivate(name, True)
-
-    def deactivate(self, name: str) -> bool:
-        return self.__activate_deactivate(name, False)

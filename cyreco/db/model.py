@@ -16,8 +16,8 @@ class UsersAuthData(Base):
     name = Column('name', String(32), unique=True)
     mailaddr = Column('mailaddr', String(254), unique=True)
     password = Column('password', String(44))
-    valid = Column('valid', Boolean)
-    active = Column('active', Boolean)
+    is_valid = Column('is_valid', Boolean)
+    is_active = Column('is_active', Boolean)
     create_time = Column('create_time', Integer)
     last_login = Column('last_login', Integer)
 
@@ -25,8 +25,8 @@ class UsersAuthData(Base):
         self.name = name
         self.mailaddr = mailaddr
         self.password = secure_hashing(plain_password, CONF.salt)
-        self.valid = False
-        self.active = True
+        self.is_valid = False
+        self.is_active = True
         self.create_time = self.last_login = int(time.time())
 
     def __repr__(self):
@@ -35,7 +35,8 @@ class UsersAuthData(Base):
             "name='{}'".format(self.name),
             "mailaddr='{}'".format(self.mailaddr),
             "password='{}'".format(self.password),
-            "valid='{}'".format(self.valid),
+            "is_valid='{}'".format(self.is_valid),
+            "is_active='{}'".format(self.is_active),
             "create_time={}".format(self.create_time),
             "last_login={}".format(self.last_login),
         ])
