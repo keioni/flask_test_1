@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 
 
-import os
 from typing import Union
 
 from sqlalchemy import and_
@@ -12,6 +11,7 @@ from cyreco.db.model import UsersAuthData, UsersProfile, UsersValidation
 from cyreco.utils.security import secure_hashing, generate_auth_code
 
 from cyreco.sys.config import CONF
+
 
 def auth_user(name: str, plain_password: str) -> bool:
     """
@@ -26,6 +26,7 @@ def auth_user(name: str, plain_password: str) -> bool:
 class CyrecoUserManager:
     """
     User Manager:
+
     Managing authenticating, adding, validating, and deleting user.
     """
 
@@ -127,3 +128,12 @@ class CyrecoUserManager:
             raise
         session.commit()
         return True
+
+    def modify(self) -> bool:
+        pass
+
+    def activate(self, name: str) -> bool:
+        pass
+
+    def deactivate(self, name: str) -> bool:
+        pass
