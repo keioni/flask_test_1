@@ -17,6 +17,7 @@ class UsersAuthData(Base):
     mailaddr = Column('mailaddr', String(254), unique=True)
     password = Column('password', String(44))
     valid = Column('valid', Boolean)
+    active = Column('active', Boolean)
     create_time = Column('create_time', Integer)
     last_login = Column('last_login', Integer)
 
@@ -25,6 +26,7 @@ class UsersAuthData(Base):
         self.mailaddr = mailaddr
         self.password = secure_hashing(plain_password, CONF.salt)
         self.valid = False
+        self.active = True
         self.create_time = self.last_login = int(time.time())
 
     def __repr__(self):
@@ -91,3 +93,12 @@ class UsersRecord(Base):
     # __table_args__ = {'mysql_engine':'InnoDB'}
 
     id = Column('id', Integer, primary_key=True)
+
+    def __init__(self, user_id: int):
+        self.id = user_id
+
+    def __repr__(self):
+        repr_args = ', '.join([
+            "id={}".format((self.id)),
+        ])
+        return "<UsersProfile({})".format(repr_args)

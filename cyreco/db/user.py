@@ -132,13 +132,13 @@ class CyrecoUserManager:
     def modify(self) -> bool:
         pass
 
-    def __activate_deactivate(self, name: str, valid: bool) -> bool:
+    def __activate_deactivate(self, name: str, active: bool) -> bool:
         session = Session()
         try:
             user = self.get_user(name, session)
             if not user:
                 return False
-            user.valid = valid
+            user.active = active
             session.add(user)
         except:
             session.rollback()
