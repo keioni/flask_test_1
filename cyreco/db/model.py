@@ -102,4 +102,4 @@ class UsersRecord(Base):
         repr_args = ', '.join([
             "id={}".format((self.id)),
         ])
-        return "<UsersProfile({})".format(repr_args)
+        return "<UsersRecord({})".format(repr_args)
