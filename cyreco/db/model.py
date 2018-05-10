@@ -46,15 +46,15 @@ class UsersAuthData(Base):
 class UsersProfile(Base):
     __tablename__ = 'users_profile'
 
-    id = Column('id', Integer, primary_key=True)
+    name = Column('name', String(32), primary_key=True)
     friendly_name = Column('friendly_name', String)
 
-    def __init__(self, user_id: int):
-        self.id = user_id
+    def __init__(self, name: str):
+        self.name = name
 
     def __repr__(self):
         repr_args = ', '.join([
-            "id={}".format((self.id)),
+            "name='{}'".format(self.name),
         ])
         return "<UsersProfile({})".format(repr_args)
 
@@ -62,21 +62,21 @@ class UsersProfile(Base):
 class UsersValidation(Base):
     __tablename__ = 'users_validation'
 
-    id = Column('id', Integer, primary_key=True)
+    name = Column('name', String(32), primary_key=True)
     mailaddr = Column('mailaddr', String(254), unique=True)
     auth_code = Column('auth_code', String(8))
     expire_time = Column('expire_time', Integer)
 
-    def __init__(self, user_id: int, mailaddr: str, auth_code: str):
+    def __init__(self, name: str, mailaddr: str, auth_code: str):
         times_to_expire = CONF.validation_timeout_in_sec
-        self.id = user_id
+        self.name = name
         self.mailaddr = mailaddr
         self.auth_code = auth_code
         self.expire_time = time.time() + int(times_to_expire)
 
     def __repr__(self):
         repr_args = ', '.join([
-            "id={}".format(self.id),
+            "name='{}'".format(self.name),
             "mailaddr='{}'".format(self.mailaddr),
             "auth_code='{}'".format(self.auth_code),
             "expire_time={}".format(self.expire_time),
@@ -93,13 +93,13 @@ class UsersRecord(Base):
     __tablename__ = 'users_record'
     # __table_args__ = {'mysql_engine':'InnoDB'}
 
-    id = Column('id', Integer, primary_key=True)
+    name = Column('name', String(32), primary_key=True)
 
-    def __init__(self, user_id: int):
-        self.id = user_id
+    def __init__(self, name: str):
+        self.name = name
 
     def __repr__(self):
         repr_args = ', '.join([
-            "id={}".format((self.id)),
+            "name='{}'".format(self.name),
         ])
         return "<UsersRecord({})".format(repr_args)

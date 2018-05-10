@@ -29,13 +29,8 @@ class CyrecoUserManager:
     Managing authenticating, adding, validating, and deleting user.
     """
 
-    def get_user(self, key: Union[str, int], session):
-        if isinstance(key, str):
-            return session.query(UsersAuthData).filter_by(name=key).first()
-        elif isinstance(key, int):
-            return session.query(UsersAuthData).filter_by(id=key).first()
-        else:
-            return
+    def get_user(self, name: str, session: Session):
+        return session.query(UsersAuthData).filter_by(name=name).first()
 
     def auth(self, name: str, plain_password: str) -> bool:
         password = secure_hashing(plain_password, CONF.salt)
@@ -47,33 +42,27 @@ class CyrecoUserManager:
                     UsersAuthData.password == password
                 )
             ).count()
-            if count == 0:
-                return False
-            else:
-                return True
+            return bool(count)
         except:
             raise
 
     def add(self, name: str, plain_password: str, mailaddr: str) -> str:
         session = Session()
         try:
-            user_adding = UsersAuthData(
+            session.add(UsersAuthData(
                 name,
                 plain_password,
                 mailaddr,
-            )
-            session.add(user_adding)
-            user_added = self.get_user(name, session)
-            if user_adding == user_added:
-                session.add(UsersProfile(
-                    user_added.id,
-                ))
-                auth_code = generate_auth_code('digit', 6)
-                session.add(UsersValidation(
-                    user_added.id,
-                    mailaddr,
-                    auth_code,
-                ))
+            ))
+            session.add(UsersProfile(
+                name,
+            ))
+            auth_code = generate_auth_code('digit', 6)
+            session.add(UsersValidation(
+                name,
+                mailaddr,
+                auth_code,
+            ))
         except IntegrityError:
             session.rollback()
             return ''
@@ -86,22 +75,17 @@ class CyrecoUserManager:
     def validate(self, name: str, mailaddr: str, auth_code: str) -> bool:
         session = Session()
         try:
-            user = self.get_user(name, session)
-            if not user:
-                return False
-            user_id = int(user.id)
-            mailaddr = mailaddr
             uv = session.query(UsersValidation).filter(
-                and_(UsersValidation.id == user_id,
+                and_(UsersValidation.name == name,
                     UsersValidation.mailaddr == mailaddr,
                     UsersValidation.auth_code == auth_code,
                     )
             ).first()
             if uv:
-                session.delete(uv)
-                user = self.get_user(user_id, session)
+                user = self.get_user(name, session)
                 user.is_valid = True
                 session.add(user)
+                session.delete(uv)
         except:
             session.rollback()
             raise
@@ -114,12 +98,11 @@ class CyrecoUserManager:
             user = self.get_user(name, session)
             if not user:
                 return False
-            user_id = user.id
             session.delete(user)
-            um = session.query(UsersProfile).filter_by(id=user_id).first()
+            um = session.query(UsersProfile).filter_by(name=name).first()
             if um:
                 session.delete(um)
-            uv = session.query(UsersValidation).filter_by(id=user_id).first()
+            uv = session.query(UsersValidation).filter_by(name=name).first()
             if uv:
                 session.delete(uv)
         except:
