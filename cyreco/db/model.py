@@ -2,7 +2,7 @@
 
 import time
 
-from sqlalchemy import Column, Integer, String, Boolean
+from sqlalchemy import Column, Integer, String, Boolean, LargeBinary
 
 from cyreco.db import engine, Base
 from cyreco.utils.security import secure_hashing, generate_auth_code
@@ -93,13 +93,49 @@ class UsersRecord(Base):
     __tablename__ = 'users_record'
     # __table_args__ = {'mysql_engine':'InnoDB'}
 
-    name = Column('name', String(32), primary_key=True)
+    record_id = Column('record_id', Integer, primary_key=True, autoincrement=True)
+    name = Column('name', String(32), index=True)
+    record_caption = Column('record_caption', String(64))
+    last_update = Column('last_update', Integer)
+    record_count = Column('record_count', Integer)
+    record_data = Column('record_data', LargeBinary(200))
 
-    def __init__(self, name: str):
+    def __init__(self, name: str, record_caption: str):
         self.name = name
+        self.record_caption = record_caption
+        self.last_update = 0
+        self.record_count = 0
+        self.record_data = b''
+
+    def __repr__(self):
+        repr_args = ', '.join([
+            "record_id={}".format(self.record_id),
+            "name='{}'".format(self.name),
+            "record_caption='{}'".format(self.record_caption),
+            "last_update={}".format(self.last_update),
+            "record_count={}".format(self.record_count),
+            "record_data=b'{}'".format(self.record_data),
+        ])
+        return "<UsersRecord({})".format(repr_args)
+
+
+class UsersRecordArchives(Base):
+    __tablename__ = 'users_record_archive'
+    # __table_args__ = {'mysql_engine':'InnoDB'}
+
+    record_id = Column('archive_id', Integer, primary_key=True)
+    record_count = Column('record_count', Integer)
+    record_data = Column('record_data', LargeBinary(60000))
+
+    def __init__(self, name: str, record_id: int):
+        self.record_id = record_id
+        self.record_count = 0
+        self.record_data = b''
 
     def __repr__(self):
         repr_args = ', '.join([
             "name='{}'".format(self.name),
+            "record_caption='{}'".format(self.record_caption),
+            "record_data=b'{}'".format(self.record_data),
         ])
-        return "<UsersRecord({})".format(repr_args)
+        return "<UsersRecordArchive({})".format(repr_args)
