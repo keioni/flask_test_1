@@ -119,7 +119,7 @@ class UsersRecord(Base):
         return "<UsersRecord({})".format(repr_args)
 
 
-class UsersRecordArchives(Base):
+class UsersRecordArchive(Base):
     __tablename__ = 'users_record_archive'
     # __table_args__ = {'mysql_engine':'InnoDB'}
 
