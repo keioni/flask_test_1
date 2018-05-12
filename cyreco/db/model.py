@@ -5,9 +5,10 @@ import time
 from sqlalchemy import Column, Integer, String, Boolean, DateTime, Binary
 from datetime import datetime
 
-from cyreco.db import engine, Base
+from cyreco.db import Base
 from cyreco.utils.security import secure_hashing, generate_auth_code
 from cyreco.sys.config import CONF
+
 
 class UsersAuthData(Base):
     __tablename__ = 'users_authdata'
