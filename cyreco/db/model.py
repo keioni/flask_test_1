@@ -43,7 +43,7 @@ class UsersAuthData(Base):
             "password='{}'".format(self.password),
             "is_valid='{}'".format(self.is_valid),
             "is_active='{}'".format(self.is_active),
-            "create_time={}".format(self.create_time),
+            "create_time='{}'".format(self.create_time),
             # "last_login={}".format(self.last_login),
         ])
         return "<UsersAuthData({})".format(repr_args)
@@ -86,14 +86,14 @@ class UsersValidation(Base):
         self.name = name
         self.mailaddr = mailaddr
         self.auth_code = auth_code
-        self.expire_time = datetime.fromtimestamp(time.time() + int(times_to_expire))
+        self.expire_time = datetime.fromtimestamp(int(time.time() + times_to_expire))
 
     def __repr__(self):
         repr_args = ', '.join([
             "name='{}'".format(self.name),
             "mailaddr='{}'".format(self.mailaddr),
             "auth_code='{}'".format(self.auth_code),
-            "expire_time={}".format(self.expire_time),
+            "expire_time='{}'".format(self.expire_time),
         ])
         return "<UsersValidation({})".format(repr_args)
 
@@ -120,7 +120,7 @@ class UsersRecord(Base):
     def __init__(self, name: str, record_caption: str):
         self.name = name
         self.record_caption = record_caption
-        self.last_update = 0
+        self.last_update = datetime.now()
         self.record_count = 0
         self.record_data = b''
 
@@ -129,7 +129,7 @@ class UsersRecord(Base):
             "record_id={}".format(self.record_id),
             "name='{}'".format(self.name),
             "record_caption='{}'".format(self.record_caption),
-            "last_update={}".format(self.last_update),
+            "last_update='{}'".format(self.last_update),
             "record_count={}".format(self.record_count),
             "record_data=b'{}'".format(self.record_data),
         ])
