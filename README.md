@@ -1,5 +1,7 @@
 
-# A study for learning Flask and SQLAlchmy (by Python learner)
+# Flask_test_1
+
+..is a study for learning Flask and SQLAlchmy (by Python learner)
 
 My private study project by a Python learner.
 
