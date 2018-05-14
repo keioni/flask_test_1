@@ -10,7 +10,7 @@ from cyreco.utils.security import secure_hashing, generate_auth_code
 from cyreco.sys.config import CONF
 
 
-class UsersAuthData(Base):
+class CyrecoUserAuth(Base):
     __tablename__ = 'users_authdata'
     # __table_args__ = {
     #     'mysql_engine': 'InnoDB',
@@ -49,7 +49,7 @@ class UsersAuthData(Base):
         return "<UsersAuthData({})".format(repr_args)
 
 
-class UsersProfile(Base):
+class CyrecoUserProfile(Base):
     __tablename__ = 'users_profile'
     # __table_args__ = {
     #     'mysql_engine': 'InnoDB',
@@ -69,7 +69,7 @@ class UsersProfile(Base):
         return "<UsersProfile({})".format(repr_args)
 
 
-class UsersValidation(Base):
+class CyrecoUserValidation(Base):
     __tablename__ = 'users_validation'
     # __table_args__ = {
     #     'mysql_engine': 'InnoDB',
@@ -103,8 +103,8 @@ class UsersValidation(Base):
 #     pass
 
 
-class UsersRecord(Base):
-    __tablename__ = 'users_record'
+class CyrecoRecord(Base):
+    __tablename__ = 'records'
     # __table_args__ = {
     #     'mysql_engine': 'InnoDB',
     #     'mysql_charset': 'utf8mb4',
@@ -136,8 +136,8 @@ class UsersRecord(Base):
         return "<UsersRecord({})".format(repr_args)
 
 
-class UsersRecordArchive(Base):
-    __tablename__ = 'users_record_archive'
+class CyrecoRecordArchive(Base):
+    __tablename__ = 'records_archive'
     # __table_args__ = {'mysql_engine':'InnoDB'}
 
     record_id = Column('archive_id', Integer, primary_key=True)
