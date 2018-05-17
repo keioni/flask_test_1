@@ -10,7 +10,7 @@ from cyreco.utils.security import secure_hashing, generate_auth_code
 from cyreco.sys.config import CONF
 
 
-class CyrecoUserAuth(Base):
+class CyUserAuth(Base):
     __tablename__ = 'users_authdata'
     # __table_args__ = {
     #     'mysql_engine': 'InnoDB',
@@ -46,10 +46,10 @@ class CyrecoUserAuth(Base):
             "create_time='{}'".format(self.create_time),
             # "last_login={}".format(self.last_login),
         ])
-        return "<UsersAuthData({})".format(repr_args)
+        return "<CyUsersAuth({})".format(repr_args)
 
 
-class CyrecoUserProfile(Base):
+class CyUserProfile(Base):
     __tablename__ = 'users_profile'
     # __table_args__ = {
     #     'mysql_engine': 'InnoDB',
@@ -66,10 +66,10 @@ class CyrecoUserProfile(Base):
         repr_args = ', '.join([
             "name='{}'".format(self.name),
         ])
-        return "<UsersProfile({})".format(repr_args)
+        return "<CyUserProfile({})".format(repr_args)
 
 
-class CyrecoUserValidation(Base):
+class CyUserValidate(Base):
     __tablename__ = 'users_validation'
     # __table_args__ = {
     #     'mysql_engine': 'InnoDB',
@@ -95,7 +95,7 @@ class CyrecoUserValidation(Base):
             "auth_code='{}'".format(self.auth_code),
             "expire_time='{}'".format(self.expire_time),
         ])
-        return "<UsersValidation({})".format(repr_args)
+        return "<CyUsersValidate({})".format(repr_args)
 
 
 # class UsersExtraInfo(Base):
@@ -103,7 +103,7 @@ class CyrecoUserValidation(Base):
 #     pass
 
 
-class CyrecoRecord(Base):
+class CyRecord(Base):
     __tablename__ = 'records'
     # __table_args__ = {
     #     'mysql_engine': 'InnoDB',
@@ -133,10 +133,10 @@ class CyrecoRecord(Base):
             "record_count={}".format(self.record_count),
             "record_data=b'{}'".format(self.record_data),
         ])
-        return "<UsersRecord({})".format(repr_args)
+        return "<CyRecord({})".format(repr_args)
 
 
-class CyrecoRecordArchive(Base):
+class CyRecordArchive(Base):
     __tablename__ = 'records_archive'
     # __table_args__ = {'mysql_engine':'InnoDB'}
 
@@ -155,4 +155,4 @@ class CyrecoRecordArchive(Base):
             "record_caption='{}'".format(self.record_caption),
             "record_data=b'{}'".format(self.record_data),
         ])
-        return "<UsersRecordArchive({})".format(repr_args)
+        return "<CyRecordArchive({})".format(repr_args)
