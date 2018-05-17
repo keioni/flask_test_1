@@ -9,14 +9,14 @@ from cyreco.sys.config import CONF
 
 class CyRecordManager:
 
-    def create_record_box(self):
+    def create_record_box(self, box_name: str):
         pass
 
-    def destruct_record_box(self):
+    def destruct_record_box(self, box_name: str):
         pass
 
-    def add_record(self):
+    def add_record(self, box_name: str):
         pass
 
-    def delete_record(self):
+    def delete_record(self, box_name: str):
         pass
