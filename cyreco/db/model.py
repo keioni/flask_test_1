@@ -18,7 +18,7 @@ class CyrecoUserAuth(Base):
     # }
 
     id = Column('id', Integer, primary_key=True, autoincrement=True)
-    name = Column('name', String(32), unique=True, nullable=False)
+    name = Column('name', String(24), unique=True, nullable=False)
     mailaddr = Column('mailaddr', String(254), unique=True, nullable=False)
     password = Column('password', String(44), nullable=False)
     is_valid = Column('is_valid', Boolean)
@@ -56,7 +56,7 @@ class CyrecoUserProfile(Base):
     #     'mysql_charset': 'utf8mb4',
     # }
 
-    name = Column('name', String(32), primary_key=True)
+    name = Column('name', String(24), primary_key=True)
     friendly_name = Column('friendly_name', String)
 
     def __init__(self, name: str):
@@ -76,7 +76,7 @@ class CyrecoUserValidation(Base):
     #     'mysql_charset': 'utf8mb4',
     # }
 
-    name = Column('name', String(32), primary_key=True)
+    name = Column('name', String(24), primary_key=True)
     mailaddr = Column('mailaddr', String(254), unique=True)
     auth_code = Column('auth_code', String(8))
     expire_time = Column('expire_time', DateTime)
@@ -111,8 +111,8 @@ class CyrecoRecord(Base):
     # }
 
     record_id = Column('record_id', Integer, primary_key=True, autoincrement=True)
-    name = Column('name', String(32), index=True, nullable=False)
-    record_caption = Column('record_caption', String(64), nullable=False)
+    name = Column('name', String(24), index=True, nullable=False)
+    record_caption = Column('record_caption', String(32), nullable=False)
     last_update = Column('last_update', DateTime, onupdate=datetime.now)
     record_count = Column('record_count', Integer)
     record_data = Column('record_data', Binary(200))
