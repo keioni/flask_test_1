@@ -6,7 +6,7 @@ from sqlalchemy import and_
 from sqlalchemy.exc import IntegrityError
 
 from cyreco.db import Session
-from cyreco.db.model import CyrecoUserAuth, CyrecoUserProfile, CyrecoUserValidation
+from cyreco.db.model import CyUserAuth, CyUserProfile, CyUserValidate
 from cyreco.utils.security import secure_hashing, generate_auth_code
 
 from cyreco.sys.config import CONF
@@ -30,16 +30,16 @@ class CyrecoUserManager:
     """
 
     def get_user(self, name: str, session: Session):
-        return session.query(CyrecoUserAuth).filter_by(name=name).first()
+        return session.query(CyUserAuth).filter_by(name=name).first()
 
     def auth(self, name: str, plain_password: str) -> bool:
         password = secure_hashing(plain_password, CONF.salt)
         session = Session()
         try:
-            count = session.query(CyrecoUserAuth).filter(
+            count = session.query(CyUserAuth).filter(
                 and_(
-                    CyrecoUserAuth.name == name,
-                    CyrecoUserAuth.password == password
+                    CyUserAuth.name == name,
+                    CyUserAuth.password == password
                 )
             ).count()
             return bool(count)
@@ -49,16 +49,16 @@ class CyrecoUserManager:
     def add(self, name: str, plain_password: str, mailaddr: str) -> str:
         session = Session()
         try:
-            session.add(CyrecoUserAuth(
+            session.add(CyUserAuth(
                 name,
                 plain_password,
                 mailaddr,
             ))
-            session.add(CyrecoUserProfile(
+            session.add(CyUserProfile(
                 name,
             ))
             auth_code = generate_auth_code('digit', 6)
-            session.add(CyrecoUserValidation(
+            session.add(CyUserValidate(
                 name,
                 mailaddr,
                 auth_code,
@@ -75,10 +75,10 @@ class CyrecoUserManager:
     def validate(self, name: str, mailaddr: str, auth_code: str) -> bool:
         session = Session()
         try:
-            uv = session.query(CyrecoUserValidation).filter(
-                and_(CyrecoUserValidation.name == name,
-                    CyrecoUserValidation.mailaddr == mailaddr,
-                    CyrecoUserValidation.auth_code == auth_code,
+            uv = session.query(CyUserValidate).filter(
+                and_(CyUserValidate.name == name,
+                    CyUserValidate.mailaddr == mailaddr,
+                    CyUserValidate.auth_code == auth_code,
                     )
             ).first()
             if uv:
@@ -99,10 +99,10 @@ class CyrecoUserManager:
             if not user:
                 return False
             session.delete(user)
-            um = session.query(CyrecoUserProfile).filter_by(name=name).first()
+            um = session.query(CyUserProfile).filter_by(name=name).first()
             if um:
                 session.delete(um)
-            uv = session.query(CyrecoUserValidation).filter_by(name=name).first()
+            uv = session.query(CyUserValidate).filter_by(name=name).first()
             if uv:
                 session.delete(uv)
         except:
