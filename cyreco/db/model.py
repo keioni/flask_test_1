@@ -112,14 +112,14 @@ class CyRecord(Base):
 
     record_id = Column('record_id', Integer, primary_key=True, autoincrement=True)
     name = Column('name', String(24), index=True, nullable=False)
-    record_caption = Column('record_caption', String(32), nullable=False)
+    box_name = Column('box_name', String(32), nullable=False)
     last_update = Column('last_update', DateTime, onupdate=datetime.now)
     record_count = Column('record_count', Integer)
     record_data = Column('record_data', Binary(200))
 
-    def __init__(self, name: str, record_caption: str):
+    def __init__(self, name: str, box_name: str):
         self.name = name
-        self.record_caption = record_caption
+        self.box_name = box_name
         self.last_update = datetime.now()
         self.record_count = 0
         self.record_data = b''
@@ -128,7 +128,7 @@ class CyRecord(Base):
         repr_args = ', '.join([
             "record_id={}".format(self.record_id),
             "name='{}'".format(self.name),
-            "record_caption='{}'".format(self.record_caption),
+            "box_name='{}'".format(self.box_name),
             "last_update='{}'".format(self.last_update),
             "record_count={}".format(self.record_count),
             "record_data=b'{}'".format(self.record_data),
@@ -152,7 +152,7 @@ class CyRecordArchive(Base):
     def __repr__(self):
         repr_args = ', '.join([
             "name='{}'".format(self.name),
-            "record_caption='{}'".format(self.record_caption),
+            "box_name='{}'".format(self.box_name),
             "record_data=b'{}'".format(self.record_data),
         ])
         return "<CyRecordArchive({})".format(repr_args)
